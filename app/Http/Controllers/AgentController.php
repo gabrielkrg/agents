@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Agent;
+use Illuminate\Container\Attributes\Auth;
 
 class AgentController extends Controller
 {
     public function index()
     {
-        return Inertia::render('agents/index');
+        $agents = auth()->user()->agents;
+
+        return Inertia::render('agents/index', [
+            'agents' => $agents,
+        ]);
     }
 
     public function store(Request $request)
@@ -23,6 +28,7 @@ class AgentController extends Controller
         Agent::create([
             'name' => $request->name,
             'description' => $request->description,
+            'user_id' => auth()->id(),
         ]);
 
         return redirect()->back()->with('success', 'Agent created successfully');

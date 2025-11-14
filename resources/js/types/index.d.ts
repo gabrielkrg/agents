@@ -41,3 +41,13 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Agent {
+    id: number;
+    name: string;
+    description: string;
+    user_id: number;
+    count: number;
+    created_at: string;
+    updated_at: string;
+}
