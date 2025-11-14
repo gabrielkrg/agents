@@ -28,7 +28,13 @@ export default function Agents({ agents }: { agents: Agent[] }) {
                     <CreateAgent />
                 </div>
                 <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <ListAgents agents={agents} />
+                    {agents.length > 0 ? (
+                        <ListAgents agents={agents} />
+                    ) : (
+                        <div className="flex justify-center items-center h-full">
+                            <p className="text-muted-foreground">No agents found.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </AppLayout>
