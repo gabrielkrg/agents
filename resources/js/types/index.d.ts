@@ -51,3 +51,23 @@ export interface Agent {
     created_at: string;
     updated_at: string;
 }
+
+export interface Chat {
+    id: number;
+    description: string;
+    agent_id: number;
+    user_id: number;
+    created_at: string;
+    updated_at: string;
+    agent_name: string;
+}
+
+export interface Message {
+    id: number;
+    chat_id: number;
+    user_id: number;
+    content: string;
+    role: "user" | "model";
+    created_at: string;
+    updated_at: string;
+}

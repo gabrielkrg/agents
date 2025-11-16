@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AgentController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -18,9 +20,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Agents
     Route::get('agents', [AgentController::class, 'index'])->name('agents.index');
+    Route::get('agents/{agent}', [AgentController::class, 'show'])->name('agents.show');
     Route::post('agents', [AgentController::class, 'store'])->name('agents.store');
     Route::put('agents/{agent}', [AgentController::class, 'update'])->name('agents.update');
     Route::delete('agents/{agent}', [AgentController::class, 'destroy'])->name('agents.destroy');
+
+
+    // Chats
+    Route::get('chats', [ChatController::class, 'index'])->name('chats.index');
+    Route::get('chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
+    Route::post('chats', [ChatController::class, 'storeWithMessage'])->name('chats.storeWithMessage');
 });
 
 require __DIR__ . '/settings.php';

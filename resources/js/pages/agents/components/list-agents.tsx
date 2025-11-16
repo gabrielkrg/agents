@@ -5,13 +5,14 @@ import {
     TableRow,
     TableHead,
     TableCell,
-    TableFooter
 } from '@/components/ui/table';
 
 import { Agent } from '@/types';
 import { Ellipsis, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ChatAgent from './chat-agent';
+import { show } from '@/routes/agents';
+import { Link } from '@inertiajs/react';
 
 export default function ListAgents({ agents }: { agents: Agent[] }) {
     return (
@@ -31,7 +32,14 @@ export default function ListAgents({ agents }: { agents: Agent[] }) {
                         <TableCell>{agent.description}</TableCell>
                         <TableCell>{agent.count}</TableCell>
                         <TableCell className='flex justify-end gap-2'>
-                            <ChatAgent agent={agent} />
+                            {/* <ChatAgent agent={agent} /> */}
+
+                            <Button variant="outline" size="icon" type="button" asChild>
+                                <Link href={show(agent.id)} >
+                                    <MessageCircle className="size-4" />
+                                </Link>
+                            </Button>
+
                             <Button variant="outline" size="icon" type="button">
                                 <Ellipsis className="size-4" />
                             </Button>

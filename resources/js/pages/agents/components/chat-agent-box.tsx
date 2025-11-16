@@ -73,7 +73,6 @@ export default function ChatAgentBox({ agent, open, setOpen }: { agent: Agent; o
                 <CardFooter>
                     <form
                         onSubmit={(event) => {
-                            alert("submit")
                             event.preventDefault()
                             if (inputLength === 0) return
                             setMessages([

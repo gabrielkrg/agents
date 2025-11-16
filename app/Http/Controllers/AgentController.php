@@ -12,9 +12,22 @@ class AgentController extends Controller
     public function index()
     {
         $agents = auth()->user()->agents;
-
         return Inertia::render('agents/index', [
             'agents' => $agents,
+        ]);
+    }
+
+    public function show(Agent $agent)
+    {
+        $user = auth()->user();
+
+        if (!$user->agents->contains($agent->id)) {
+            return redirect()->back()->with('error', 'You are not authorized to view this agent');
+        }
+
+        return Inertia::render('agents/show', [
+            'agent' => $agent,
+            'chats' => $agent->chats,
         ]);
     }
 
@@ -25,13 +38,13 @@ class AgentController extends Controller
             'description' => 'required|string|max:255',
         ]);
 
-        Agent::create([
+        $agent = Agent::create([
             'name' => $request->name,
             'description' => $request->description,
             'user_id' => auth()->id(),
         ]);
 
-        return redirect()->back()->with('success', 'Agent created successfully');
+        return redirect()->route('agents.show', $agent->id)->with('success', 'Agent created successfully');
     }
 
     public function update(Request $request, Agent $agent)
