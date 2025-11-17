@@ -7,9 +7,10 @@ import { store } from '@/routes/agents';
 import InputError from '@/components/input-error';
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
-import { CheckIcon, Loader2Icon } from 'lucide-react';
+import { CheckIcon, FolderPlus, Loader2Icon } from 'lucide-react';
+import { SidebarMenuSubButton } from './ui/sidebar';
 
-export default function CreateAgent() {
+export default function CreateAgentMenu() {
     const [open, setOpen] = useState(false);
 
     const handleSuccess = () => {
@@ -21,7 +22,12 @@ export default function CreateAgent() {
         <>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
-                    <Button>Create</Button>
+                    <SidebarMenuSubButton
+                        className="cursor-pointer"
+                    >
+                        <FolderPlus className="size-4 text-muted-foreground" />
+                        <span>New agent</span>
+                    </SidebarMenuSubButton>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <Form

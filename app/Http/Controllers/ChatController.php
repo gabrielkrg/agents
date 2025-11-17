@@ -26,7 +26,7 @@ class ChatController extends Controller
         ]);
     }
 
-    public function show(Chat $chat)
+    public function show(Request $request, Chat $chat)
     {
         $user = auth()->user();
 
@@ -39,6 +39,7 @@ class ChatController extends Controller
         return Inertia::render('chats/show', [
             'chat' => $chat,
             'messages' => $chat->messages,
+            'newChat' => $request->query('newChat'),
         ]);
     }
 
@@ -81,7 +82,7 @@ class ChatController extends Controller
 
         try {
             $chat = Chat::create([
-                'description' => 'New chat ' . $request->content,
+                'description' => $request->content,
                 'agent_id' => $request->agent_id,
                 'user_id' => $user->id,
             ]);
@@ -99,10 +100,36 @@ class ChatController extends Controller
 
         DB::commit();
 
-        return Inertia::render('chats/show', [
-            'chat' => $chat,
-            'messages' => $chat->messages,
-            'newChat' => true,
+        return redirect()->to(route('chats.show', $chat->id) . '?newChat=true');
+    }
+
+    public function update(Request $request, Chat $chat)
+    {
+        $request->validate([
+            'description' => 'nullable|string',
         ]);
+
+        $user = auth()->user();
+
+        if (!$user->chats->contains($chat->id)) {
+            return redirect()->back()->with('error', 'You are not authorized to update this chat');
+        }
+
+        $chat->update($request->all());
+
+        return redirect()->back()->with('success', 'Chat updated successfully');
+    }
+
+    public function destroy(Chat $chat)
+    {
+        $user = auth()->user();
+
+        if (!$user->agents->contains($chat->agent_id)) {
+            return redirect()->back()->with('error', 'You are not authorized to delete this chat');
+        }
+
+        $chat->delete();
+
+        return redirect()->route('agents.show', $chat->agent_id)->with('success', 'Chat deleted successfully');
     }
 }

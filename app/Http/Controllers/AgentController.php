@@ -63,6 +63,6 @@ class AgentController extends Controller
     {
         $agent->delete();
 
-        return redirect()->back()->with('success', 'Agent deleted successfully');
+        return redirect()->route('dashboard')->with('success', 'Agent deleted successfully');
     }
 }

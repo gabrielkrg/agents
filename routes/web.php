@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\MessageController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -14,9 +14,8 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    // Dashboard
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Agents
     Route::get('agents', [AgentController::class, 'index'])->name('agents.index');
@@ -25,11 +24,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('agents/{agent}', [AgentController::class, 'update'])->name('agents.update');
     Route::delete('agents/{agent}', [AgentController::class, 'destroy'])->name('agents.destroy');
 
-
     // Chats
-    Route::get('chats', [ChatController::class, 'index'])->name('chats.index');
     Route::get('chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
+    Route::put('chats/{chat}', [ChatController::class, 'update'])->name('chats.update');
     Route::post('chats', [ChatController::class, 'storeWithMessage'])->name('chats.storeWithMessage');
+    Route::delete('chats/{chat}', [ChatController::class, 'destroy'])->name('chats.destroy');
 });
 
 require __DIR__ . '/settings.php';

@@ -50,6 +50,7 @@ export interface Agent {
     count: number;
     created_at: string;
     updated_at: string;
+    chats: Chat[];
 }
 
 export interface Chat {

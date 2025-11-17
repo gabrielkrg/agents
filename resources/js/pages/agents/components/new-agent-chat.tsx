@@ -33,7 +33,7 @@ export default function NewAgentChat({ agent }: { agent: Agent }) {
                                 <InputGroupInput
                                     id="content"
                                     name="content"
-                                    placeholder={`New chat for ${agent.name}`}
+                                    placeholder="New chat..."
                                     autoComplete="off"
                                     value={input}
                                     onChange={(event) => setInput(event.target.value)}
