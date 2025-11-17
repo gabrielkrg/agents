@@ -150,7 +150,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                             {message.role === "user" ? (
                                 message.content
                             ) : (
-                                <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <div className="max-w-full">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
                                         components={markdownComponents}
