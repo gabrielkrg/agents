@@ -11,27 +11,16 @@ use App\Models\Message;
 
 class ChatController extends Controller
 {
-    public function index(Agent $agent)
+    public function show(Request $request, Agent $agent, Chat $chat)
     {
         $user = auth()->user();
 
-        if (!$user->agents->contains($agent->id)) {
+        if (!$user->chats->contains($chat->id)) {
             return redirect()->back()->with('error', 'You are not authorized to view this chat');
         }
 
-        $chats = $agent->chats()->with('agent')->get();
-
-        return Inertia::render('chats/index', [
-            'chats' => $chats,
-        ]);
-    }
-
-    public function show(Request $request, Chat $chat)
-    {
-        $user = auth()->user();
-
-        if (!$user->agents->contains($chat->agent_id)) {
-            return redirect()->back()->with('error', 'You are not authorized to view this chat');
+        if ($agent->id !== $chat->agent_id) {
+            return redirect()->back()->with('error', 'Something went wrong');
         }
 
         $chat->load('agent');
@@ -100,7 +89,7 @@ class ChatController extends Controller
 
         DB::commit();
 
-        return redirect()->to(route('chats.show', $chat->id) . '?newChat=true');
+        return redirect()->to(route('chats.show', [$request->agent_id, $chat->id]) . '?newChat=true');
     }
 
     public function update(Request $request, Chat $chat)

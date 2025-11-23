@@ -25,7 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('agents/{agent}', [AgentController::class, 'destroy'])->name('agents.destroy');
 
     // Chats
-    Route::get('chats/{chat}', [ChatController::class, 'show'])->name('chats.show');
+    Route::get('a/{agent}/c/{chat}', [ChatController::class, 'show'])->name('chats.show');
+
     Route::put('chats/{chat}', [ChatController::class, 'update'])->name('chats.update');
     Route::post('chats', [ChatController::class, 'storeWithMessage'])->name('chats.storeWithMessage');
     Route::delete('chats/{chat}', [ChatController::class, 'destroy'])->name('chats.destroy');

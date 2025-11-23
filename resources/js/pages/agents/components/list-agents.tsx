@@ -10,16 +10,15 @@ import {
 import { Agent } from '@/types';
 import { Ellipsis, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ChatAgent from './chat-agent';
 import { show } from '@/routes/agents';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 export default function ListAgents({ agents }: { agents: Agent[] }) {
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead className="w-[100px]">Name</TableHead>
+                    <TableHead>Name</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Count</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -27,7 +26,11 @@ export default function ListAgents({ agents }: { agents: Agent[] }) {
             </TableHeader>
             <TableBody>
                 {agents.map((agent) => (
-                    <TableRow key={agent.id}>
+                    <TableRow
+                        key={agent.id}
+                        className='hover:bg-foreground/10 cursor-pointer'
+                        onClick={() => router.visit(show(agent.id))}
+                    >
                         <TableCell className="font-medium">{agent.name}</TableCell>
                         <TableCell>{agent.description}</TableCell>
                         <TableCell>{agent.count}</TableCell>

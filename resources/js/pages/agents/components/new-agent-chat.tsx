@@ -6,7 +6,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Agent } from '@/types';
-import { storeWithMessage } from '@/routes/chats';
+import { storeWithMessage } from '@/routes/chats/';
 
 export default function NewAgentChat({ agent }: { agent: Agent }) {
     const [input, setInput] = useState("")

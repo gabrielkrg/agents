@@ -37,20 +37,28 @@ export default function NavAgents({ showLabel = false }: { showLabel: boolean })
                             <SidebarMenuButton
                                 asChild
                                 key={agent.id}
-                                isActive={show(agent.id).url === window.location.pathname}>
+                                isActive={window.location.pathname.startsWith(show(agent.id).url)}>
+
                                 <Link href={show(agent.id).url} prefetch>
-                                    {show(agent.id).url === window.location.pathname ? <FolderOpen /> : <FolderClosed />}
+                                    {
+                                        window.location.pathname.startsWith(show(agent.id).url) ||
+                                            window.location.pathname.startsWith('/a/' + agent.id + '/c/') ||
+                                            window.location.pathname.startsWith(showChat([agent.id, 0]).url) ?
+                                            <FolderOpen /> :
+                                            <FolderClosed />
+                                    }
                                     <span>{agent.name}</span>
                                 </Link>
+
                             </SidebarMenuButton>
                             {agent.chats.map((chat: Chat) => (
                                 <SidebarMenuSub key={chat.id}>
                                     <SidebarMenuSubItem >
                                         <SidebarMenuSubButton
                                             asChild
-                                            isActive={showChat(chat.id).url === window.location.pathname}
+                                            isActive={showChat([agent.id, chat.id]).url === window.location.pathname}
                                         >
-                                            <Link href={showChat(chat.id)} prefetch>
+                                            <Link href={showChat([agent.id, chat.id]).url} prefetch>
                                                 <span>{chat.description}</span>
                                             </Link>
                                         </SidebarMenuSubButton>

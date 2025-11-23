@@ -2,16 +2,17 @@ import AppLayout from '@/layouts/app-layout';
 import { Chat, Message, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
-import { ArrowUpIcon } from 'lucide-react';
+import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
 import { InputGroup, InputGroupInput, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
 import { show } from '@/routes/chats';
-import { show as showAgent } from '@/routes/agents';
+import { index, show as showAgent } from '@/routes/agents';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import ReactMarkdown, { type Components } from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Components } from "react-markdown";
 
-const markdownComponents: Components = {
+export const markdownComponents: Components = {
     h1: ({ children }) => <h1 className="text-2xl font-semibold mb-3 mt-1">{children}</h1>,
     h2: ({ children }) => <h2 className="text-xl font-semibold mb-2 mt-1">{children}</h2>,
     h3: ({ children }) => <h3 className="text-lg font-semibold mb-2 mt-1">{children}</h3>,
@@ -23,10 +24,10 @@ const markdownComponents: Components = {
     pre: ({ children }) => <pre className="bg-muted rounded-md p-3 text-sm overflow-x-auto mb-3">{children}</pre>,
 };
 
-const userMessageClasses = "bg-primary text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm";
-const assistantMessageClasses = "flex w-max max-w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm";
+export const userMessageClasses = "bg-primary text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm";
+export const assistantMessageClasses = "flex w-max max-w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm";
 
-const TypingIndicator = () => (
+export const TypingIndicator = () => (
     <div className="flex items-center text-sm text-muted-foreground">
         <span className="inline-block h-2.5 w-2.5 rounded-full bg-muted-foreground animate-bounce" />
     </div>
@@ -43,7 +44,7 @@ function storeMessage(message: string, role: string, chat_id: number, agent_id: 
     })
 }
 
-function generateAiMessage(agent_id: number, chat_id: number) {
+function generateAiResponse(agent_id: number, chat_id: number) {
     return axios.post('/api/gemini/generate', {
         agent_id: agent_id,
         chat_id: chat_id,
@@ -53,27 +54,32 @@ function generateAiMessage(agent_id: number, chat_id: number) {
 }
 
 export default function ChatShow({ chat, messages, newChat }: { chat: Chat; messages: Message[]; newChat: string | null }) {
-
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Agent',
+            title: 'Agents',
+            href: index().url,
+        },
+        {
+            title: chat.agent_name,
             href: showAgent(chat.agent_id).url,
         },
         {
-            title: 'Chat',
-            href: show(chat.id).url,
+            title: `${chat.description}`,
+            href: show([chat.agent_id, chat.id]).url,
         },
     ];
 
     const [input, setInput] = useState("")
     const inputLength = input.trim().length
-    const [messagesState, setMessagesState] = useState<any[]>(messages)
+
+    const [messagesChat, setMessagesChat] = useState<any[]>(messages)
     const [isGenerating, setIsGenerating] = useState(false)
     const hasGeneratedAiMessage = useRef(false)
+
     const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
     function addMessage(message: Message) {
-        setMessagesState((prev) => [
+        setMessagesChat((prev) => [
             ...prev,
             {
                 id: message.id,
@@ -85,22 +91,23 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-    }, [messagesState, isGenerating])
+    }, [messagesChat, isGenerating])
 
     useEffect(() => {
         if (newChat && !hasGeneratedAiMessage.current) {
             hasGeneratedAiMessage.current = true
             setIsGenerating(true)
 
-            generateAiMessage(chat.agent_id, chat.id)
-                .then((aiMessage) => {
-                    return storeMessage(aiMessage.parsed, 'model', chat.id, chat.agent_id).then((storedAiMessage) => {
-                        addMessage(storedAiMessage)
-                    })
+            generateAiResponse(chat.agent_id, chat.id).then((aiResponse) => {
+                return storeMessage(aiResponse.parsed, 'model', chat.id, chat.agent_id).then((storedAiMessage) => {
+                    addMessage(storedAiMessage)
                 })
-                .finally(() => {
-                    setIsGenerating(false)
-                })
+            }).catch((error) => {
+                console.error('Failed to generate AI response', error)
+            }).finally(() => {
+                setIsGenerating(false)
+            })
+
         }
     }, [newChat, chat.agent_id, chat.id])
 
@@ -110,16 +117,20 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         if (inputLength === 0 || isGenerating) return
 
         const currentInput = input
+
         setInput('')
         setIsGenerating(true)
 
         try {
-            const userMessage = await storeMessage(currentInput, 'user', chat.id, chat.agent_id)
-            addMessage(userMessage)
+            // store user message
+            const storedUserMessage = await storeMessage(currentInput, 'user', chat.id, chat.agent_id)
+            addMessage(storedUserMessage)
 
-            const aiMessage = await generateAiMessage(chat.agent_id, chat.id)
-            const storedAiMessage = await storeMessage(aiMessage.parsed, 'model', chat.id, chat.agent_id)
-            addMessage(storedAiMessage)
+            // generate ai response
+            const aiResponse = await generateAiResponse(chat.agent_id, chat.id)
+            // store ai response
+            const storedAiResponse = await storeMessage(aiResponse.parsed, 'model', chat.id, chat.agent_id)
+            addMessage(storedAiResponse)
         } catch (error) {
             console.error('Failed to send message', error)
         } finally {
@@ -138,7 +149,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                 </div>
 
                 <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
-                    {messagesState.map((message) => (
+                    {messagesChat.map((message) => (
                         <div
                             key={message.id}
                             className={cn(
@@ -169,7 +180,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="fixed bottom-15 w-full max-w-[1000px]">
+                <div className="fixed bottom-0 w-full max-w-[1000px] bg-background pb-10 px-4">
                     <form
                         onSubmit={handleSubmit}
                         className="relative w-full"
@@ -188,9 +199,9 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                                     type="submit"
                                     size="icon-sm"
                                     className="rounded-full"
-                                    disabled={isGenerating || inputLength === 0}
+                                    disabled={isGenerating}
                                 >
-                                    <ArrowUpIcon />
+                                    {isGenerating ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUpIcon className="size-4" />}
                                     <span className="sr-only">Send</span>
                                 </InputGroupButton>
                             </InputGroupAddon>

@@ -1,4 +1,4 @@
-import { Chat } from "@/types";
+import { Agent, Chat } from "@/types";
 import { Link } from "@inertiajs/react";
 import { show } from "@/routes/chats";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { Form } from "@inertiajs/react";
 import { update, destroy } from "@/routes/chats/";
 import InputError from "@/components/input-error";
 import { useState } from "react";
-import axios from "axios";
 
 function EditChat({ chat }: { chat: Chat }) {
     const [open, setOpen] = useState(false);
@@ -121,7 +120,7 @@ function DeleteChat({ chat }: { chat: Chat }) {
     );
 }
 
-export default function ListChats({ chats }: { chats: Chat[] }) {
+export default function ListChats({ agent, chats }: { agent: Agent, chats: Chat[] }) {
     return (
         chats.length > 0 ? (
             <div className="flex flex-col gap-2">
@@ -134,7 +133,7 @@ export default function ListChats({ chats }: { chats: Chat[] }) {
                                 className='relative flex justify-between items-center hover:bg-foreground/10 p-4'
                             >
                                 <Link
-                                    href={show(chat.id)}
+                                    href={show([agent.id, chat.id])}
                                     key={chat.id}
                                     className="text-sm flex-1">
                                     {chat.description}

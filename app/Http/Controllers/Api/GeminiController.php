@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use App\Models\Agent;
 use App\Models\Chat;
 use App\Services\GeminiService;
@@ -33,6 +32,8 @@ class GeminiController extends Controller
         $chat = Chat::find($request->chat_id);
 
         $response = $geminiService->generateContent($agent, $chat, $request);
+
+        $agent->increment('count');
 
         return response()->json($response);
     }
