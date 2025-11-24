@@ -1,5 +1,5 @@
 import { Agent, Chat } from "@/types";
-import { Link } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import { show } from "@/routes/chats";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, Loader2Icon, MessageCircleOffIcon, Pencil, Trash } from "lucide-react";
@@ -130,16 +130,20 @@ export default function ListChats({ agent, chats }: { agent: Agent, chats: Chat[
                         chats.map((chat) => (
                             <div
                                 key={chat.id}
-                                className='relative flex justify-between items-center hover:bg-foreground/10 p-4'
+                                className='group relative cursor-pointer flex justify-between items-center hover:bg-foreground/10 p-4'
+                                onClick={() => router.visit(show([agent.id, chat.id]))}
                             >
-                                <Link
-                                    href={show([agent.id, chat.id])}
-                                    key={chat.id}
-                                    className="text-sm flex-1">
+                                <span
+                                    className="text-sm flex-1"
+                                    onClick={() => router.visit(show([agent.id, chat.id]))}
+                                >
                                     {chat.description}
-                                </Link>
+                                </span>
 
-                                <div className="flex gap-2">
+                                <div
+                                    className="flex gap-2"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     <EditChat chat={chat} />
                                     <DeleteChat chat={chat} />
                                 </div>

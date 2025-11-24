@@ -6,7 +6,7 @@ import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
 import { InputGroup, InputGroupInput, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
 import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -52,6 +52,33 @@ function generateAiResponse(agent_id: number, chat_id: number) {
         return response.data as { parsed: any, raw: string };
     })
 }
+
+const ChatMessage = memo(({ message }: { message: { id: number; role: string; content: string } }) => {
+    return (
+        <div
+            className={cn(
+                message.role === "user"
+                    ? userMessageClasses
+                    : assistantMessageClasses
+            )}
+        >
+            {message.role === "user" ? (
+                message.content
+            ) : (
+                <div className="max-w-full">
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={markdownComponents}
+                    >
+                        {message.content}
+                    </ReactMarkdown>
+                </div>
+            )}
+        </div>
+    );
+});
+
+ChatMessage.displayName = 'ChatMessage';
 
 export default function ChatShow({ chat, messages, newChat }: { chat: Chat; messages: Message[]; newChat: string | null }) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -150,27 +177,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
                 <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
                     {messagesChat.map((message) => (
-                        <div
-                            key={message.id}
-                            className={cn(
-                                message.role === "user"
-                                    ? userMessageClasses
-                                    : assistantMessageClasses
-                            )}
-                        >
-                            {message.role === "user" ? (
-                                message.content
-                            ) : (
-                                <div className="max-w-full">
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        components={markdownComponents}
-                                    >
-                                        {message.content}
-                                    </ReactMarkdown>
-                                </div>
-                            )}
-                        </div>
+                        <ChatMessage key={message.id} message={message} />
                     ))}
                     {isGenerating && (
                         <div className={assistantMessageClasses}>
