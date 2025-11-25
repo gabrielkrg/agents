@@ -43,7 +43,7 @@ export interface User {
 }
 
 export interface Agent {
-    id: number;
+    uuid: string;
     name: string;
     description: string;
     user_id: number;
@@ -54,9 +54,9 @@ export interface Agent {
 }
 
 export interface Chat {
-    id: number;
+    uuid: string;
     description: string;
-    agent_id: number;
+    agent_uuid: string;
     user_id: number;
     created_at: string;
     updated_at: string;
@@ -64,8 +64,8 @@ export interface Chat {
 }
 
 export interface Message {
-    id: number;
-    chat_id: number;
+    uuid: string;
+    chat_uuid: string;
     user_id: number;
     content: string;
     role: "user" | "model";

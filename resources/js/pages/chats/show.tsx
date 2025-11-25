@@ -33,21 +33,21 @@ export const TypingIndicator = () => (
     </div>
 );
 
-function storeMessage(message: string, role: string, chat_id: number, agent_id: number) {
+function storeMessage(message: string, role: string, chat_uuid: string, agent_uuid: string) {
     return axios.post('/api/messages', {
         content: message,
         role: role,
-        chat_id: chat_id,
-        agent_id: agent_id,
+        chat_uuid: chat_uuid,
+        agent_uuid: agent_uuid,
     }).then((response) => {
         return response.data as Message;
     })
 }
 
-function generateAiResponse(agent_id: number, chat_id: number) {
+function generateAiResponse(agent_uuid: string, chat_uuid: string) {
     return axios.post('/api/gemini/generate', {
-        agent_id: agent_id,
-        chat_id: chat_id,
+        agent_uuid: agent_uuid,
+        chat_uuid: chat_uuid,
     }).then((response) => {
         return response.data as { parsed: any, raw: string };
     })
@@ -88,11 +88,11 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         },
         {
             title: chat.agent_name,
-            href: showAgent(chat.agent_id).url,
+            href: showAgent(chat.agent_uuid).url,
         },
         {
             title: `${chat.description}`,
-            href: show([chat.agent_id, chat.id]).url,
+            href: show([chat.agent_uuid, chat.uuid]).url,
         },
     ];
 
@@ -109,7 +109,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         setMessagesChat((prev) => [
             ...prev,
             {
-                id: message.id,
+                uuid: message.uuid,
                 role: message.role,
                 content: message.content,
             },
@@ -128,7 +128,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
     useEffect(() => {
         scrollToBottom()
-    }, [messagesChat, isGenerating])
+    }, [isGenerating])
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -143,8 +143,8 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
             hasGeneratedAiMessage.current = true
             setIsGenerating(true)
 
-            generateAiResponse(chat.agent_id, chat.id).then((aiResponse) => {
-                return storeMessage(aiResponse.parsed, 'model', chat.id, chat.agent_id).then((storedAiMessage) => {
+            generateAiResponse(chat.agent_uuid, chat.uuid).then((aiResponse) => {
+                return storeMessage(aiResponse.parsed, 'model', chat.uuid, chat.agent_uuid).then((storedAiMessage) => {
                     addMessage(storedAiMessage)
                 })
             }).catch((error) => {
@@ -154,7 +154,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
             })
 
         }
-    }, [newChat, chat.agent_id, chat.id])
+    }, [newChat, chat.agent_uuid, chat.uuid])
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -168,13 +168,13 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
         try {
             // store user message
-            const storedUserMessage = await storeMessage(currentInput, 'user', chat.id, chat.agent_id)
+            const storedUserMessage = await storeMessage(currentInput, 'user', chat.uuid, chat.agent_uuid)
             addMessage(storedUserMessage)
 
             // generate ai response
-            const aiResponse = await generateAiResponse(chat.agent_id, chat.id)
+            const aiResponse = await generateAiResponse(chat.agent_uuid, chat.uuid)
             // store ai response
-            const storedAiResponse = await storeMessage(aiResponse.parsed, 'model', chat.id, chat.agent_id)
+            const storedAiResponse = await storeMessage(aiResponse.parsed, 'model', chat.uuid, chat.agent_uuid)
             addMessage(storedAiResponse)
         } catch (error) {
             console.error('Failed to send message', error)
@@ -195,7 +195,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
                 <div id="messages-container" className="flex flex-col gap-4 w-full pb-25 !text-[17px]">
                     {messagesChat.map((message) => (
-                        <ChatMessage key={message.id} message={message} />
+                        <ChatMessage key={message.uuid} message={message} />
                     ))}
                     {isGenerating && (
                         <div className={assistantMessageClasses}>

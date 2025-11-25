@@ -12,11 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('chats', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('uuid')->primary();
             $table->string('description')->nullable();
-            $table->foreignId('agent_id')->constrained('agents')->onDelete('cascade');
+            $table->uuid('agent_uuid')->index();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
+
+            $table->foreign('agent_uuid')
+                ->references('uuid')
+                ->on('agents')
+                ->onDelete('cascade');
         });
     }
 

@@ -23,9 +23,9 @@ export default function NewAgentChat({ agent }: { agent: Agent }) {
                 }) => (
                     <>
                         <div className="flex flex-col gap-2 hidden">
-                            <Label htmlFor="agent_id">Agent ID</Label>
-                            <Input type="hidden" id='agent_id' name='agent_id' value={agent.id} />
-                            <InputError message={errors.agent_id} />
+                            <Label htmlFor="agent_uuid">Agent UUID</Label>
+                            <Input type="hidden" id='agent_uuid' name='agent_uuid' value={agent.uuid} />
+                            <InputError message={errors.agent_uuid} />
                         </div>
 
                         <div className='flex flex-col gap-2'>

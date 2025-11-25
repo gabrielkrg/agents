@@ -21,7 +21,7 @@ class AgentController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->agents->contains($agent->id)) {
+        if (!$user->agents->contains($agent->uuid)) {
             return redirect()->back()->with('error', 'You are not authorized to view this agent');
         }
 
@@ -44,7 +44,7 @@ class AgentController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return redirect()->route('agents.show', $agent->id)->with('success', 'Agent created successfully');
+        return redirect()->route('agents.show', $agent)->with('success', 'Agent created successfully');
     }
 
     public function update(Request $request, Agent $agent)

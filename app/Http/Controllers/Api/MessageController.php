@@ -14,24 +14,24 @@ class MessageController extends Controller
         $request->validate([
             'content' => 'required|string',
             'role' => 'required|in:user,model',
-            'chat_id' => 'required|exists:chats,id',
-            'agent_id' => 'required|exists:agents,id',
+            'chat_uuid' => 'required|exists:chats,uuid',
+            'agent_uuid' => 'required|exists:agents,uuid',
         ]);
 
         $user = auth()->user();
 
-        if (!$user->chats->contains($request->chat_id)) {
+        if (!$user->chats->contains($request->chat_uuid)) {
             return response()->json(['error' => 'You are not authorized to create a message for this chat'], 403);
         }
 
-        if (!$user->agents->contains($request->agent_id)) {
+        if (!$user->agents->contains($request->agent_uuid)) {
             return response()->json(['error' => 'You are not authorized to create a message for this agent'], 403);
         }
 
         $message = Message::create([
             'content' => $request->content,
             'role' => $request->role,
-            'chat_id' => $request->chat_id,
+            'chat_uuid' => $request->chat_uuid,
             'user_id' => $user->id,
         ]);
 

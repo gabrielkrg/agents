@@ -32,7 +32,7 @@ export default function DeleteAgent({ agent }: { agent: Agent }) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <Form {...destroy.form({ agent: agent.id })} onSuccess={handleSuccess}>
+                    <Form {...destroy.form({ agent: agent.uuid })} onSuccess={handleSuccess}>
                         {({
                             processing,
                             wasSuccessful,

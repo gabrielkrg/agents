@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Chat extends Model
 {
-    protected $fillable = ['description', 'agent_id', 'user_id'];
+    use HasUuids;
+    protected $primaryKey = 'uuid';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = ['description', 'agent_uuid', 'user_id'];
 
     protected $appends = ['agent_name'];
 

@@ -26,7 +26,7 @@ export default function EditAgent({ agent }: { agent: Agent }) {
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
-                <Form {...update.form({ agent: agent.id })} className="flex flex-col gap-4" onSuccess={handleSuccess}>
+                <Form {...update.form({ agent: agent.uuid })} className="flex flex-col gap-4" onSuccess={handleSuccess}>
                     {({
                         errors,
                         processing,

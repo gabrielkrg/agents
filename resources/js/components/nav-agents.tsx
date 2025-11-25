@@ -33,17 +33,19 @@ export default function NavAgents({ showLabel = false }: { showLabel: boolean })
                 </SidebarMenu>
                 <SidebarMenu>
                     {agents.map((agent: Agent) => (
-                        <SidebarMenuItem key={agent.id}>
+                        <SidebarMenuItem key={agent.uuid}>
                             <SidebarMenuButton
                                 asChild
-                                key={agent.id}
-                                isActive={window.location.pathname.startsWith(show(agent.id).url)}>
+                                key={agent.uuid}
+                                isActive={window.location.pathname.startsWith(show(agent.uuid).url)}
+                                tooltip={{ children: agent.name }}
+                            >
 
-                                <Link href={show(agent.id).url} prefetch>
+                                <Link href={show(agent.uuid).url} prefetch>
                                     {
-                                        window.location.pathname.startsWith(show(agent.id).url) ||
-                                            window.location.pathname.startsWith('/a/' + agent.id + '/c/') ||
-                                            window.location.pathname.startsWith(showChat([agent.id, 0]).url) ?
+                                        window.location.pathname.startsWith(show(agent.uuid).url) ||
+                                            window.location.pathname.startsWith('/a/' + agent.uuid + '/c/') ||
+                                            window.location.pathname.startsWith(showChat([agent.uuid, { uuid: '0' }]).url) ?
                                             <FolderOpen /> :
                                             <FolderClosed />
                                     }
@@ -53,14 +55,14 @@ export default function NavAgents({ showLabel = false }: { showLabel: boolean })
 
                             </SidebarMenuButton>
                             {agent.chats.map((chat: Chat) => (
-                                <SidebarMenuSub key={chat.id}>
+                                <SidebarMenuSub key={chat.uuid}>
                                     <SidebarMenuSubItem>
                                         <SidebarMenuSubButton
                                             asChild
-                                            isActive={showChat([agent.id, chat.id]).url === window.location.pathname}
+                                            isActive={showChat([agent.uuid, chat.uuid]).url === window.location.pathname}
                                         >
 
-                                            <Link href={showChat([agent.id, chat.id]).url} prefetch>
+                                            <Link href={showChat([agent.uuid, chat.uuid]).url} prefetch>
                                                 <span>{chat.description}</span>
                                             </Link>
 
@@ -71,7 +73,7 @@ export default function NavAgents({ showLabel = false }: { showLabel: boolean })
                         </SidebarMenuItem>
                     ))}
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
+                        <SidebarMenuButton asChild tooltip={{ children: 'All agents' }}>
                             <Link href={agentsIndex().url} prefetch>
                                 <Folders />
                                 <span>All agents</span>

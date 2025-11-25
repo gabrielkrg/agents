@@ -29,7 +29,7 @@ function EditChat({ chat }: { chat: Chat }) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <Form
-                    {...update.form({ chat: chat.id })}
+                    {...update.form({ chat: chat.uuid })}
                     className="flex flex-col gap-4"
                     onSuccess={handleSuccess}
                     resetOnSuccess={['description']}
@@ -98,7 +98,7 @@ function DeleteChat({ chat }: { chat: Chat }) {
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
 
-                    <Form {...destroy.form({ chat: chat.id })} onSuccess={handleSuccess}>
+                    <Form {...destroy.form({ chat: chat.uuid })} onSuccess={handleSuccess}>
                         {({
                             errors,
                             processing,
@@ -129,13 +129,13 @@ export default function ListChats({ agent, chats }: { agent: Agent, chats: Chat[
                     {
                         chats.map((chat) => (
                             <div
-                                key={chat.id}
+                                key={chat.uuid}
                                 className='group relative cursor-pointer flex justify-between items-center hover:bg-foreground/10 p-4'
-                                onClick={() => router.visit(show([agent.id, chat.id]))}
+                                onClick={() => router.visit(show([agent.uuid, chat.uuid]))}
                             >
                                 <span
                                     className="text-sm flex-1"
-                                    onClick={() => router.visit(show([agent.id, chat.id]))}
+                                    onClick={() => router.visit(show([agent.uuid, chat.uuid]))}
                                 >
                                     {chat.description}
                                 </span>

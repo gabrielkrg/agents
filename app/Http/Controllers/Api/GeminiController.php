@@ -14,22 +14,22 @@ class GeminiController extends Controller
     public function generate(Request $request, GeminiService $geminiService): JsonResponse
     {
         $request->validate([
-            'agent_id' => 'required|exists:agents,id',
-            'chat_id' => 'required|exists:chats,id',
+            'agent_uuid' => 'required|exists:agents,uuid',
+            'chat_uuid' => 'required|exists:chats,uuid',
         ]);
 
         $user = auth()->user();
 
-        if (!$user->agents->contains($request->agent_id)) {
+        if (!$user->agents->contains($request->agent_uuid)) {
             return response()->json(['error' => 'You are not authorized to generate content for this agent'], 403);
         }
 
-        if (!$user->chats->contains($request->chat_id)) {
+        if (!$user->chats->contains($request->chat_uuid)) {
             return response()->json(['error' => 'You are not authorized to generate content for this chat'], 403);
         }
 
-        $agent = Agent::find($request->agent_id);
-        $chat = Chat::find($request->chat_id);
+        $agent = Agent::find($request->agent_uuid);
+        $chat = Chat::find($request->chat_uuid);
 
         $response = $geminiService->generateContent($agent, $chat, $request);
 

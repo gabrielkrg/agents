@@ -15,11 +15,11 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->chats->contains($chat->id)) {
+        if (!$user->chats->contains($chat->uuid)) {
             return redirect()->back()->with('error', 'You are not authorized to view this chat');
         }
 
-        if ($agent->id !== $chat->agent_id) {
+        if ($agent->uuid !== $chat->agent_uuid) {
             return redirect()->back()->with('error', 'Something went wrong');
         }
 
@@ -36,18 +36,18 @@ class ChatController extends Controller
     {
         $request->validate([
             'description' => 'nullable|string',
-            'agent_id' => 'required|exists:agents,id',
+            'agent_uuid' => 'required|exists:agents,uuid',
         ]);
 
         $user = auth()->user();
 
-        if (!$user->agents->contains($request->agent_id)) {
+        if (!$user->agents->contains($request->agent_uuid)) {
             return redirect()->back()->with('error', 'You are not authorized to create a chat for this agent');
         }
 
         Chat::create([
             'description' => $request->description,
-            'agent_id' => $request->agent_id,
+            'agent_uuid' => $request->agent_uuid,
             'user_id' => $user->id,
         ]);
 
@@ -58,12 +58,12 @@ class ChatController extends Controller
     {
         $request->validate([
             'content' => 'required|string',
-            'agent_id' => 'required|exists:agents,id',
+            'agent_uuid' => 'required|exists:agents,uuid',
         ]);
 
         $user = auth()->user();
 
-        if (!$user->agents->contains($request->agent_id)) {
+        if (!$user->agents->contains($request->agent_uuid)) {
             return redirect()->back()->with('error', 'You are not authorized to create a chat for this agent');
         }
 
@@ -72,12 +72,12 @@ class ChatController extends Controller
         try {
             $chat = Chat::create([
                 'description' => $request->content,
-                'agent_id' => $request->agent_id,
+                'agent_uuid' => $request->agent_uuid,
                 'user_id' => $user->id,
             ]);
 
             Message::create([
-                'chat_id' => $chat->id,
+                'chat_uuid' => $chat->uuid,
                 'user_id' => $user->id,
                 'content' => $request->content,
                 'role' => 'user',
@@ -89,7 +89,7 @@ class ChatController extends Controller
 
         DB::commit();
 
-        return redirect()->to(route('chats.show', [$request->agent_id, $chat->id]) . '?newChat=true');
+        return redirect()->to(route('chats.show', [$request->agent_uuid, $chat->uuid]) . '?newChat=true');
     }
 
     public function update(Request $request, Chat $chat)
@@ -100,7 +100,7 @@ class ChatController extends Controller
 
         $user = auth()->user();
 
-        if (!$user->chats->contains($chat->id)) {
+        if (!$user->chats->contains($chat->uuid)) {
             return redirect()->back()->with('error', 'You are not authorized to update this chat');
         }
 
@@ -113,12 +113,12 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->agents->contains($chat->agent_id)) {
+        if (!$user->agents->contains($chat->agent_uuid)) {
             return redirect()->back()->with('error', 'You are not authorized to delete this chat');
         }
 
         $chat->delete();
 
-        return redirect()->route('agents.show', $chat->agent_id)->with('success', 'Chat deleted successfully');
+        return redirect()->route('agents.show', $chat->agent_uuid)->with('success', 'Chat deleted successfully');
     }
 }

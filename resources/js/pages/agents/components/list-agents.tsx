@@ -27,9 +27,9 @@ export default function ListAgents({ agents }: { agents: Agent[] }) {
             <TableBody>
                 {agents.map((agent) => (
                     <TableRow
-                        key={agent.id}
+                        key={agent.uuid}
                         className='hover:bg-foreground/10 cursor-pointer'
-                        onClick={() => router.visit(show(agent.id))}
+                        onClick={() => router.visit(show(agent.uuid))}
                     >
                         <TableCell className="font-medium">{agent.name}</TableCell>
                         <TableCell>{agent.description}</TableCell>
@@ -38,7 +38,7 @@ export default function ListAgents({ agents }: { agents: Agent[] }) {
                             {/* <ChatAgent agent={agent} /> */}
 
                             <Button variant="outline" size="icon" type="button" asChild>
-                                <Link href={show(agent.id)} >
+                                <Link href={show(agent.uuid)} >
                                     <MessageCircle className="size-4" />
                                 </Link>
                             </Button>

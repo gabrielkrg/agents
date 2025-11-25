@@ -16,7 +16,7 @@ export default function AgentsShow({ agent, chats }: { agent: Agent; chats: Chat
         },
         {
             title: `${agent.name}`,
-            href: show(agent.id).url,
+            href: show(agent.uuid).url,
         },
     ];
     return (
