@@ -25,8 +25,8 @@ export const markdownComponents: Components = {
     pre: ({ children }) => <pre className="bg-muted rounded-md p-3 text-sm overflow-x-auto mb-3">{children}</pre>,
 };
 
-export const userMessageClasses = "bg-primary whitespace-pre-wrap text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2";
-export const assistantMessageClasses = "flex w-max max-w-full flex-col gap-2 rounded-lg px-3 py-2";
+export const userMessageClasses = "bg-primary whitespace-pre-wrap !text-[16px] leading-5 text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2";
+export const assistantMessageClasses = "flex w-max max-w-full flex-col gap-2 rounded-lg px-3 py-2 !text-[17px] leading-7";
 
 export const TypingIndicator = () => (
     <div className="flex items-center text-sm text-muted-foreground">
@@ -57,11 +57,9 @@ function generateAiResponse(agent_uuid: string, chat_uuid: string) {
 const ChatMessage = memo(({ message }: { message: { id: number; role: string; content: string } }) => {
     return (
         <div
-            className={cn(
-                "!text-[17px] leading-7",
-                message.role === "user"
-                    ? userMessageClasses
-                    : assistantMessageClasses
+            className={cn(message.role === "user"
+                ? userMessageClasses
+                : assistantMessageClasses
             )}
         >
             {message.role === "user" ? (
