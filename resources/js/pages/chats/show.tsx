@@ -24,8 +24,8 @@ export const markdownComponents: Components = {
     pre: ({ children }) => <pre className="bg-muted rounded-md p-3 text-sm overflow-x-auto mb-3">{children}</pre>,
 };
 
-export const userMessageClasses = "bg-primary text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm";
-export const assistantMessageClasses = "flex w-max max-w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm";
+export const userMessageClasses = "bg-primary text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2";
+export const assistantMessageClasses = "flex w-max max-w-full flex-col gap-2 rounded-lg px-3 py-2";
 
 export const TypingIndicator = () => (
     <div className="flex items-center text-sm text-muted-foreground">
@@ -116,9 +116,27 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         ])
     }
 
+    const scrollToBottom = (smooth: boolean = true) => {
+        requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({
+                behavior: smooth ? 'smooth' : 'auto',
+
+                block: 'end'
+            })
+        })
+    }
+
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        scrollToBottom()
     }, [messagesChat, isGenerating])
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            scrollToBottom(false)
+        }, 50)
+
+        return () => clearTimeout(timer)
+    }, [])
 
     useEffect(() => {
         if (newChat && !hasGeneratedAiMessage.current) {
@@ -175,7 +193,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                     </div>
                 </div>
 
-                <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
+                <div id="messages-container" className="flex flex-col gap-4 w-full pb-25 !text-[17px]">
                     {messagesChat.map((message) => (
                         <ChatMessage key={message.id} message={message} />
                     ))}
@@ -184,15 +202,16 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                             <TypingIndicator />
                         </div>
                     )}
-                    <div ref={messagesEndRef} />
                 </div>
+
+                <div ref={messagesEndRef} />
 
                 <div className="fixed bottom-0 w-full max-w-[1000px] bg-background pb-10 px-4">
                     <form
                         onSubmit={handleSubmit}
                         className="relative w-full"
                     >
-                        <InputGroup className="!bg-background rounded-full">
+                        <InputGroup className="bg-transparent rounded-full">
                             <InputGroupInput
                                 id="message"
                                 placeholder="Type your message..."

@@ -151,13 +151,17 @@ class GeminiService
      * @return \Illuminate\Http\Client\Response
      * @throws \Exception
      */
-    protected function sendRequest(array $requestData): \Illuminate\Http\Client\Response
+    protected function sendRequest(array $requestData, bool $streaming = false): \Illuminate\Http\Client\Response
     {
+        $url = $streaming
+            ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse'
+            : 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
         try {
             return Http::withHeaders([
                 'x-goog-api-key' => env('GEMINI_API_KEY'),
                 'Content-Type' => 'application/json',
-            ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', $requestData);
+            ])->post($url, $requestData);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }

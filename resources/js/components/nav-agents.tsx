@@ -48,19 +48,22 @@ export default function NavAgents({ showLabel = false }: { showLabel: boolean })
                                             <FolderClosed />
                                     }
                                     <span>{agent.name}</span>
+
                                 </Link>
 
                             </SidebarMenuButton>
                             {agent.chats.map((chat: Chat) => (
                                 <SidebarMenuSub key={chat.id}>
-                                    <SidebarMenuSubItem >
+                                    <SidebarMenuSubItem>
                                         <SidebarMenuSubButton
                                             asChild
                                             isActive={showChat([agent.id, chat.id]).url === window.location.pathname}
                                         >
+
                                             <Link href={showChat([agent.id, chat.id]).url} prefetch>
                                                 <span>{chat.description}</span>
                                             </Link>
+
                                         </SidebarMenuSubButton>
                                     </SidebarMenuSubItem>
                                 </SidebarMenuSub>
