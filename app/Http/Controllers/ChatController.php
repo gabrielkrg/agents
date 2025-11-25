@@ -61,17 +61,26 @@ class ChatController extends Controller
             'agent_uuid' => 'required|exists:agents,uuid',
         ]);
 
+
         $user = auth()->user();
 
         if (!$user->agents->contains($request->agent_uuid)) {
             return redirect()->back()->with('error', 'You are not authorized to create a chat for this agent');
         }
 
+        // 
+        $cleanContent = trim(strip_tags($request->content));
+        $description = mb_substr($cleanContent, 0, 20);
+
+        if (mb_strlen($cleanContent) > 20) {
+            $description .= '...';
+        }
+
         DB::beginTransaction();
 
         try {
             $chat = Chat::create([
-                'description' => $request->content,
+                'description' => $description,
                 'agent_uuid' => $request->agent_uuid,
                 'user_id' => $user->id,
             ]);

@@ -37,7 +37,7 @@ export default function NavAgents({ showLabel = false }: { showLabel: boolean })
                             <SidebarMenuButton
                                 asChild
                                 key={agent.uuid}
-                                isActive={window.location.pathname.startsWith(show(agent.uuid).url)}
+                                isActive={window.location.pathname === show(agent.uuid).url}
                                 tooltip={{ children: agent.name }}
                             >
 
@@ -73,7 +73,11 @@ export default function NavAgents({ showLabel = false }: { showLabel: boolean })
                         </SidebarMenuItem>
                     ))}
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip={{ children: 'All agents' }}>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={window.location.pathname === agentsIndex().url}
+                            tooltip={{ children: 'All agents' }}
+                        >
                             <Link href={agentsIndex().url} prefetch>
                                 <Folders />
                                 <span>All agents</span>

@@ -2,11 +2,12 @@ import { Form, Head } from '@inertiajs/react';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Agent } from '@/types';
 import { storeWithMessage } from '@/routes/chats/';
+import { handleTextareaKeyDown } from '@/lib/utils';
 
 export default function NewAgentChat({ agent }: { agent: Agent }) {
     const [input, setInput] = useState("")
@@ -28,30 +29,31 @@ export default function NewAgentChat({ agent }: { agent: Agent }) {
                             <InputError message={errors.agent_uuid} />
                         </div>
 
-                        <div className='flex flex-col gap-2'>
-                            <InputGroup>
-                                <InputGroupInput
-                                    id="content"
-                                    name="content"
-                                    placeholder="New chat..."
-                                    autoComplete="off"
-                                    value={input}
-                                    onChange={(event) => setInput(event.target.value)}
-                                />
-                                <InputGroupAddon align="inline-end">
-                                    <InputGroupButton
-                                        disabled={processing}
-                                        type="submit"
-                                        size="icon-xs"
-                                        className="rounded-full"
-                                    >
-                                        {processing ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUpIcon className="size-4" />}
-                                        <span className="sr-only">Send</span>
-                                    </InputGroupButton>
-                                </InputGroupAddon>
-                            </InputGroup>
-                            <InputError message={errors.content} />
-                        </div>
+                        <InputGroup className="bg-transparent !rounded-3xl pl-5 pr-1">
+                            <InputGroupTextarea
+                                id="content"
+                                name="content"
+                                placeholder="Type your message..."
+                                autoComplete="off"
+                                value={input}
+                                onChange={(event) => setInput(event.target.value)}
+                                rows={1}
+                                onKeyDown={handleTextareaKeyDown}
+                                className="min-h-0 text-base"
+                            />
+                            <InputGroupAddon align="inline-end">
+                                <InputGroupButton
+                                    disabled={processing}
+                                    type="submit"
+                                    size="icon-sm"
+                                    className="rounded-full"
+                                >
+                                    {processing ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUpIcon className="size-4" />}
+                                    <span className="sr-only">Send</span>
+                                </InputGroupButton>
+                            </InputGroupAddon>
+                        </InputGroup>
+                        <InputError message={errors.content} />
                     </>
                 )}
             </Form>

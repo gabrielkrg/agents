@@ -2,8 +2,9 @@ import AppLayout from '@/layouts/app-layout';
 import { Chat, Message, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
+import { handleTextareaKeyDown } from '@/lib/utils';
 import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
-import { InputGroup, InputGroupInput, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
+import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
 import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
 import { useState, useEffect, useRef, memo } from 'react';
@@ -16,15 +17,15 @@ export const markdownComponents: Components = {
     h1: ({ children }) => <h1 className="text-2xl font-semibold mb-3 mt-1">{children}</h1>,
     h2: ({ children }) => <h2 className="text-xl font-semibold mb-2 mt-1">{children}</h2>,
     h3: ({ children }) => <h3 className="text-lg font-semibold mb-2 mt-1">{children}</h3>,
-    p: ({ children }) => <p className="leading-relaxed mb-3 last:mb-0">{children}</p>,
-    ul: ({ children }) => <ul className="list-disc list-outside pl-5 space-y-1 mb-3">{children}</ul>,
-    ol: ({ children }) => <ol className="list-decimal list-outside pl-5 space-y-1 mb-3">{children}</ol>,
-    li: ({ children }) => <li className="[&>p]:mb-1 last:[&>p]:mb-0">{children}</li>,
+    p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+    ul: ({ children }) => <ul className="list-disc list-outside pl-5 space-y-1 mb-4">{children}</ul>,
+    ol: ({ children }) => <ol className="list-decimal list-outside pl-5 space-y-1 mb-4">{children}</ol>,
+    li: ({ children }) => <li className="[&>p]:mb-1 last:[&>p]:mb-0 mt-4">{children}</li>,
     code: ({ children }) => <code className="rounded bg-muted px-1 py-0.5 text-sm">{children}</code>,
     pre: ({ children }) => <pre className="bg-muted rounded-md p-3 text-sm overflow-x-auto mb-3">{children}</pre>,
 };
 
-export const userMessageClasses = "bg-primary text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2";
+export const userMessageClasses = "bg-primary whitespace-pre-wrap text-primary-foreground ml-auto flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2";
 export const assistantMessageClasses = "flex w-max max-w-full flex-col gap-2 rounded-lg px-3 py-2";
 
 export const TypingIndicator = () => (
@@ -57,6 +58,7 @@ const ChatMessage = memo(({ message }: { message: { id: number; role: string; co
     return (
         <div
             className={cn(
+                "!text-[17px] leading-7",
                 message.role === "user"
                     ? userMessageClasses
                     : assistantMessageClasses
@@ -128,7 +130,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
     useEffect(() => {
         scrollToBottom()
-    }, [isGenerating])
+    }, [isGenerating, messagesChat])
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -193,7 +195,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                     </div>
                 </div>
 
-                <div id="messages-container" className="flex flex-col gap-4 w-full pb-25 !text-[17px]">
+                <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
                     {messagesChat.map((message) => (
                         <ChatMessage key={message.uuid} message={message} />
                     ))}
@@ -211,14 +213,17 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                         onSubmit={handleSubmit}
                         className="relative w-full"
                     >
-                        <InputGroup className="bg-transparent rounded-full">
-                            <InputGroupInput
+                        <InputGroup className="bg-transparent !rounded-3xl pl-5 pr-1">
+                            <InputGroupTextarea
                                 id="message"
                                 placeholder="Type your message..."
                                 autoComplete="off"
                                 value={input}
                                 onChange={(event) => setInput(event.target.value)}
                                 disabled={isGenerating}
+                                rows={1}
+                                onKeyDown={handleTextareaKeyDown}
+                                className="min-h-0 text-base"
                             />
                             <InputGroupAddon align="inline-end">
                                 <InputGroupButton
