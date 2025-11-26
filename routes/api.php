@@ -10,8 +10,4 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/gemini/generate', [GeminiController::class, 'generate']);
     Route::post('/gemini/generate/single', [GeminiController::class, 'generateSingle']);
     Route::get('/agents', [AgentController::class, 'agents'])->name('api.agents');
-
-    Route::get('/test', function () {
-        return response()->json(['message' => 'Hello, world!']);
-    });
 });

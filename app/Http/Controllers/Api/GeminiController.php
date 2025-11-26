@@ -46,13 +46,15 @@ class GeminiController extends Controller
             'content' => 'required|string',
         ]);
 
-        $response = $geminiService->generateContentStream($request);
-
         $agent = $request->agent_uuid ? Agent::find($request->agent_uuid) : null;
+
+        if ($agent && !auth()->user()->agents->contains($agent->uuid)) {
+            return response()->json(['error' => 'You are not authorized to generate content for this agent'], 403);
+        }
 
         $response = $geminiService->generateContentSingle($agent, $request);
 
-        // $agent->increment('count');
+        $agent->increment('count');
 
         return response()->json($response);
     }
