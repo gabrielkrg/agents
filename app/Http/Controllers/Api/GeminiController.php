@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Models\Agent;
 use App\Models\Chat;
 use App\Services\GeminiService;
@@ -45,7 +46,7 @@ class GeminiController extends Controller
             'content' => 'required|string',
         ]);
 
-        $user = auth()->user();
+        $response = $geminiService->generateContentStream($request);
 
         $agent = $request->agent_uuid ? Agent::find($request->agent_uuid) : null;
 
