@@ -144,7 +144,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
             setIsGenerating(true)
 
             generateAiResponse(chat.agent_uuid, chat.uuid).then((aiResponse) => {
-                return storeMessage(aiResponse.parsed, 'model', chat.uuid, chat.agent_uuid).then((storedAiMessage) => {
+                return storeMessage(aiResponse.raw, 'model', chat.uuid, chat.agent_uuid).then((storedAiMessage) => {
                     addMessage(storedAiMessage)
                 })
             }).catch((error) => {
@@ -174,7 +174,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
             // generate ai response
             const aiResponse = await generateAiResponse(chat.agent_uuid, chat.uuid)
             // store ai response
-            const storedAiResponse = await storeMessage(aiResponse.parsed, 'model', chat.uuid, chat.agent_uuid)
+            const storedAiResponse = await storeMessage(aiResponse.raw, 'model', chat.uuid, chat.agent_uuid)
             addMessage(storedAiResponse)
         } catch (error) {
             console.error('Failed to send message', error)

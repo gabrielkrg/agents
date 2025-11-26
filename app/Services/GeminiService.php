@@ -36,6 +36,41 @@ class GeminiService
     }
 
     /**
+     * Gera conteúdo usando a API do Gemini
+     *
+     * @param Agent $agent
+     * @param Request $request
+     * @return array{parsed: array|string, raw: string}
+     * @throws \Exception
+     */
+    public function generateContentSingle(?Agent $agent, Request $request): array
+    {
+        $parts = [
+            'parts' => [
+                [
+                    'text' => $request->content
+                ]
+            ]
+        ];
+
+        $requestData = $this->buildRequestData($agent, $parts);
+
+        $response = $this->sendRequest($requestData);
+        $responseData = $this->extractResponseData($response);
+
+        if ($agent) {
+            $parsed = $this->parseResponse($agent, $responseData);
+        } else {
+            $parsed = $responseData;
+        }
+
+        return [
+            'parsed' => $parsed,
+            'raw' => $responseData
+        ];
+    }
+
+    /**
      * Prepara os chats a partir do prompt e adiciona arquivos se houver
      *
      * @param Collection<Message> $messages
@@ -115,6 +150,10 @@ class GeminiService
             'contents' => $parts
         ];
 
+        if ($agent && $agent->json_schema) {
+            $requestData['generation_config'] = $this->buildJsonSchemaConfig($agent);
+        }
+
         return $requestData;
     }
 
@@ -151,11 +190,9 @@ class GeminiService
      * @return \Illuminate\Http\Client\Response
      * @throws \Exception
      */
-    protected function sendRequest(array $requestData, bool $streaming = false): \Illuminate\Http\Client\Response
+    protected function sendRequest(array $requestData): \Illuminate\Http\Client\Response
     {
-        $url = $streaming
-            ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse'
-            : 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
         try {
             return Http::withHeaders([

@@ -57,6 +57,18 @@ export default function CreateAgent() {
                                         />
                                         <InputError message={errors.description} />
                                     </div>
+                                    <div className="grid grid-cols-3 items-center gap-4">
+                                        <Label htmlFor="json_schema">
+                                            JSON Schema
+                                        </Label>
+                                        <div className="col-span-3">
+                                            <Textarea id="json_schema" name="json_schema" rows={4} />
+                                            <span className="text-primary text-xs">
+                                                Let it be null if you want a plain text response.
+                                            </span>
+                                            <InputError message={errors.json_schema} />
+                                        </div>
+                                    </div>
                                 </div>
                                 <DialogFooter>
                                     <DialogClose asChild>

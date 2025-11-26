@@ -36,12 +36,14 @@ class AgentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
+            'json_schema' => 'nullable|json',
         ]);
 
         $agent = Agent::create([
             'name' => $request->name,
             'description' => $request->description,
-            'user_id' => auth()->id(),
+            'json_schema' => $request->json_schema,
+            'user_id' => auth()->user()->id,
         ]);
 
         return redirect()->route('agents.show', $agent)->with('success', 'Agent created successfully');
@@ -52,7 +54,10 @@ class AgentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
+            'json_schema' => 'nullable|json',
         ]);
+
+        // dd($request->all());
 
         $agent->update($request->all());
 

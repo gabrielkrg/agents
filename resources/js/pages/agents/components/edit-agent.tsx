@@ -51,6 +51,18 @@ export default function EditAgent({ agent }: { agent: Agent }) {
                                     <Textarea id="description" name="description" rows={4} defaultValue={agent.description} />
                                     <InputError message={errors.description} />
                                 </div>
+                                <div className="grid grid-cols-3 items-center gap-4">
+                                    <Label htmlFor="json_schema">
+                                        JSON Schema
+                                    </Label>
+                                    <div className="col-span-3">
+                                        <Textarea id="json_schema" name="json_schema" rows={4} defaultValue={agent.json_schema ?? ''} />
+                                        <span className="text-primary text-xs">
+                                            Let it be null if you want a plain text response.
+                                        </span>
+                                        <InputError message={errors.json_schema} />
+                                    </div>
+                                </div>
                             </div>
                             <DialogFooter>
                                 <div className="flex items-center gap-2">

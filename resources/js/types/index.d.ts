@@ -46,6 +46,7 @@ export interface Agent {
     uuid: string;
     name: string;
     description: string;
+    json_schema: string | null;
     user_id: number;
     count: number;
     created_at: string;

@@ -3,12 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Form } from '@inertiajs/react';
-import { store } from '@/routes/agents';
 import InputError from '@/components/input-error';
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 import { CheckIcon, FolderPlus, Loader2Icon } from 'lucide-react';
 import { SidebarMenuSubButton } from './ui/sidebar';
+import { store } from '@/routes/agents';
 
 export default function CreateAgentMenu() {
     const [open, setOpen] = useState(false);
@@ -62,6 +62,18 @@ export default function CreateAgentMenu() {
                                             rows={4}
                                         />
                                         <InputError message={errors.description} />
+                                    </div>
+                                    <div className="grid grid-cols-3 items-center gap-4">
+                                        <Label htmlFor="json_schema">
+                                            JSON Schema
+                                        </Label>
+                                        <div className="col-span-3">
+                                            <Textarea id="json_schema" name="json_schema" rows={4} />
+                                            <span className="text-primary text-xs">
+                                                Let it be null if you want a plain text response.
+                                            </span>
+                                            <InputError message={errors.json_schema} />
+                                        </div>
                                     </div>
                                 </div>
                                 <DialogFooter>

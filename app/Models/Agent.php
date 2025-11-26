@@ -13,7 +13,7 @@ class Agent extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['name', 'description', 'user_id', 'count'];
+    protected $fillable = ['name', 'description', 'json_schema', 'user_id', 'count'];
 
     protected $casts = [
         'created_at' => 'datetime',
