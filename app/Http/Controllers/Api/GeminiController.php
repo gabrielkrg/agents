@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Models\Agent;
 use App\Models\Chat;
 use App\Services\GeminiService;
@@ -38,30 +39,31 @@ class GeminiController extends Controller
         return response()->json($response);
     }
 
-    public function stream(Request $request, GeminiService $geminiService): JsonResponse
+    public function generateStream(Request $request, GeminiService $geminiService): StreamedResponse|JsonResponse
     {
         $request->validate([
-            'agent_uuid' => 'required|exists:agents,uuid',
-            'chat_uuid' => 'required|exists:chats,uuid',
+            'content' => 'required|string',
         ]);
 
-        $user = auth()->user();
+        $response = $geminiService->generateContentStream($request);
 
-        if (!$user->agents->contains($request->agent_uuid)) {
-            return response()->json(['error' => 'You are not authorized to generate content for this agent'], 403);
-        }
+        return response()->stream(function () use ($response) {
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
 
-        if (!$user->chats->contains($request->chat_uuid)) {
-            return response()->json(['error' => 'You are not authorized to generate content for this chat'], 403);
-        }
 
-        $agent = Agent::find($request->agent_uuid);
-        $chat = Chat::find($request->chat_uuid);
+            while (!empty($response)) {
+                echo $response;
+                flush();
+            }
 
-        $response = $geminiService->generateContent($agent, $chat, $request);
-
-        $agent->increment('count');
-
-        return response()->json($response);
+            echo "event: done\ndata: end\n\n";
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ]);
     }
 }

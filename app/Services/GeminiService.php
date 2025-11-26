@@ -36,6 +36,46 @@ class GeminiService
     }
 
     /**
+     * Gera conteúdo usando a API do Gemini
+     *
+     * @param Prompt $prompt
+     * @param Request $request
+     * @param bool $useChats Se true, usa os chats do prompt; se false, usa apenas o conteúdo da requisição
+     * @return array{parsed: array|string, raw: string}
+     * @throws \Exception
+     */
+    public function generateContentStream(Request $request): string
+    {
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse';
+
+        $payload = [
+            'contents' => [
+                [
+                    'role' => 'user',
+                    'parts' => [
+                        ['text' => $request->input('content')]
+                    ],
+                ],
+            ],
+        ];
+
+        $response = Http::withHeaders([
+            'x-goog-api-key' => env('GEMINI_API_KEY'),
+            'Content-Type' => 'application/json',
+        ])
+            ->withOptions(['stream' => true])
+            ->post($url, $payload);
+
+        if ($response->failed()) {
+            throw new \RuntimeException('Falha ao acessar a API do Gemini: ' . $response);
+        }
+
+        $responseData = $response->body();
+
+        return $responseData;
+    }
+
+    /**
      * Prepara os chats a partir do prompt e adiciona arquivos se houver
      *
      * @param Collection<Message> $messages

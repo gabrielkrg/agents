@@ -9,6 +9,7 @@ import { edit as editPassword } from '@/routes/user-password';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
+import { index as tokensIndex } from '@/routes/tokens';
 
 const sidebarNavItems: NavItem[] = [
     {
@@ -29,6 +30,11 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'Appearance',
         href: editAppearance(),
+        icon: null,
+    },
+    {
+        title: 'Tokens',
+        href: tokensIndex(),
         icon: null,
     },
 ];

@@ -32,6 +32,27 @@ class ChatController extends Controller
         ]);
     }
 
+    public function stream(Request $request, Agent $agent, Chat $chat)
+    {
+        $user = auth()->user();
+
+        if (!$user->chats->contains($chat->uuid)) {
+            return redirect()->back()->with('error', 'You are not authorized to view this chat');
+        }
+
+        if ($agent->uuid !== $chat->agent_uuid) {
+            return redirect()->back()->with('error', 'Something went wrong');
+        }
+
+        $chat->load('agent');
+
+        return Inertia::render('chats/stream/show', [
+            'chat' => $chat,
+            'messages' => $chat->messages,
+            'newChat' => $request->query('newChat'),
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
