@@ -3,15 +3,16 @@ import { Chat, Message, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 import { handleTextareaKeyDown } from '@/lib/utils';
-import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
+import { ArrowDownIcon, ArrowUpIcon, Loader2Icon } from 'lucide-react';
 import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
 import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Components } from "react-markdown";
+import { Button } from '@/components/ui/button';
 
 export const markdownComponents: Components = {
     h1: ({ children }) => <h1 className="text-2xl font-semibold mb-3 mt-1">{children}</h1>,
@@ -102,8 +103,18 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
     const [messagesChat, setMessagesChat] = useState<any[]>(messages)
     const [isGenerating, setIsGenerating] = useState(false)
     const hasGeneratedAiMessage = useRef(false)
+    const [isDesktop, setIsDesktop] = useState(false)
+    const [isAtBottom, setIsAtBottom] = useState(true)
 
     const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+    const updateIsAtBottom = useCallback(() => {
+        if (!messagesEndRef.current) return
+
+        const rect = messagesEndRef.current.getBoundingClientRect()
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight
+        setIsAtBottom(rect.bottom <= viewportHeight + 8)
+    }, [])
 
     function addMessage(message: Message) {
         setMessagesChat((prev) => [
@@ -123,20 +134,40 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
                 block: 'end'
             })
+
+            setIsAtBottom(true)
         })
     }
 
     useEffect(() => {
-        scrollToBottom()
-    }, [isGenerating, messagesChat])
-
-    useEffect(() => {
         const timer = setTimeout(() => {
             scrollToBottom(false)
-        }, 50)
+        }, 100)
 
         return () => clearTimeout(timer)
     }, [])
+
+    useEffect(() => {
+        const updateIsDesktop = () => {
+            setIsDesktop(window.innerWidth >= 1024)
+        }
+
+        updateIsDesktop()
+        window.addEventListener('resize', updateIsDesktop)
+
+        return () => window.removeEventListener('resize', updateIsDesktop)
+    }, [])
+
+    useEffect(() => {
+        updateIsAtBottom()
+        window.addEventListener('scroll', updateIsAtBottom, { passive: true })
+
+        return () => window.removeEventListener('scroll', updateIsAtBottom)
+    }, [updateIsAtBottom])
+
+    useEffect(() => {
+        updateIsAtBottom()
+    }, [messagesChat.length, updateIsAtBottom])
 
     useEffect(() => {
         if (newChat && !hasGeneratedAiMessage.current) {
@@ -170,6 +201,8 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
             // store user message
             const storedUserMessage = await storeMessage(currentInput, 'user', chat.uuid, chat.agent_uuid)
             addMessage(storedUserMessage)
+
+            scrollToBottom(true)
 
             // generate ai response
             const aiResponse = await generateAiResponse(chat.agent_uuid, chat.uuid)
@@ -207,6 +240,19 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                 <div ref={messagesEndRef} />
 
                 <div className="fixed bottom-0 w-full max-w-[1000px] bg-background pb-10 px-4">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => scrollToBottom(true)}
+                        className={cn(
+                            "fixed bottom-30 left-1/2 rounded-full -translate-x-1/2 transition-all duration-200 ease-out",
+                            isAtBottom
+                                ? "opacity-0 pointer-events-none translate-y-4"
+                                : "opacity-100 pointer-events-auto translate-y-0"
+                        )}
+                    >
+                        <ArrowDownIcon className="size-4" />
+                    </Button>
                     <form
                         onSubmit={handleSubmit}
                         className="relative w-full"
@@ -220,7 +266,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                                 onChange={(event) => setInput(event.target.value)}
                                 disabled={isGenerating}
                                 rows={1}
-                                onKeyDown={handleTextareaKeyDown}
+                                onKeyDown={isDesktop ? handleTextareaKeyDown : undefined}
                                 className="min-h-0 text-base"
                             />
                             <InputGroupAddon align="inline-end">

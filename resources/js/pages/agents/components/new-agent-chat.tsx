@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Agent } from '@/types';
 import { storeWithMessage } from '@/routes/chats/';
@@ -11,6 +11,18 @@ import { handleTextareaKeyDown } from '@/lib/utils';
 
 export default function NewAgentChat({ agent }: { agent: Agent }) {
     const [input, setInput] = useState("")
+    const [isDesktop, setIsDesktop] = useState(false)
+
+    useEffect(() => {
+        const updateIsDesktop = () => {
+            setIsDesktop(window.innerWidth >= 1024)
+        }
+
+        updateIsDesktop()
+        window.addEventListener('resize', updateIsDesktop)
+
+        return () => window.removeEventListener('resize', updateIsDesktop)
+    }, [])
 
     return (
         <>
@@ -38,7 +50,7 @@ export default function NewAgentChat({ agent }: { agent: Agent }) {
                                 value={input}
                                 onChange={(event) => setInput(event.target.value)}
                                 rows={1}
-                                onKeyDown={handleTextareaKeyDown}
+                                onKeyDown={isDesktop ? handleTextareaKeyDown : undefined}
                                 className="min-h-0 text-base"
                             />
                             <InputGroupAddon align="inline-end">
