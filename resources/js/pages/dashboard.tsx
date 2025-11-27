@@ -30,8 +30,8 @@ export default function Dashboard({ agents }: { agents: Agent[] }) {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <Heading title="Dashboard" description="Manage your dashboard" />
                 <SummaryCards agents={agents} />
-                <div className="grid auto-rows-min gap-4 md:grid-cols-5 relative min-h-[100vh] flex-1 overflow-hidden md:min-h-min">
-                    <Card className="col-span-3 flex-1 gap-2">
+                <div className="grid auto-rows-min gap-4 grid-cols-5 relative min-h-[100vh] flex-1 overflow-hidden md:min-h-min">
+                    <Card className="md:col-span-3 col-span-5 flex-1 gap-2">
                         <CardHeader className="px-4">
                             <CardTitle>Last Agents</CardTitle>
                         </CardHeader>
@@ -39,7 +39,7 @@ export default function Dashboard({ agents }: { agents: Agent[] }) {
                             <TableAgents agents={agents} />
                         </CardContent>
                     </Card>
-                    <Card className="col-span-2">
+                    <Card className="md:col-span-2 col-span-5">
                         <CardHeader className="text-center">
                             <CardTitle>Chats por agente</CardTitle>
                             <CardDescription>Distribuição total de chats</CardDescription>
