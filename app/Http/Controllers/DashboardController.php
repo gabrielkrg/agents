@@ -11,7 +11,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        $agents = $user->agents()->orderBy('created_at', 'desc')->get();
+        $agents = $user->agents()->orderByDesc('created_at')->with('chats')->get();
 
         return Inertia::render('dashboard', compact('agents'));
     }

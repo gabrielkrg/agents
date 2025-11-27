@@ -5,6 +5,7 @@ import {
     TableRow,
     TableHead,
     TableCell,
+    TableCaption,
 } from '@/components/ui/table';
 
 import { Agent } from '@/types';
@@ -16,6 +17,8 @@ import { Link, router } from '@inertiajs/react';
 export default function ListAgents({ agents }: { agents: Agent[] }) {
     return (
         <Table>
+            <TableCaption>A list of last 10 agents.</TableCaption>
+
             <TableHeader>
                 <TableRow>
                     <TableHead>Name</TableHead>
@@ -50,6 +53,7 @@ export default function ListAgents({ agents }: { agents: Agent[] }) {
                     </TableRow>
                 ))}
             </TableBody>
+
         </Table>
     );
 }

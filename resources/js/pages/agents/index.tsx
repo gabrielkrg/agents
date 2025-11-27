@@ -7,6 +7,7 @@ import CreateAgent from './components/create-agent';
 import { Agent } from '@/types';
 import ListAgents from './components/list-agents';
 import Heading from '@/components/heading';
+import TableAgents from './components/table-agents';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,9 +28,9 @@ export default function Agents({ agents }: { agents: Agent[] }) {
                     />
                     <CreateAgent />
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
+                <div className="relative p-4 min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
                     {agents.length > 0 ? (
-                        <ListAgents agents={agents} />
+                        <TableAgents agents={agents} />
                     ) : (
                         <div className="flex justify-center items-center h-full">
                             <p className="text-muted-foreground">No agents found.</p>
