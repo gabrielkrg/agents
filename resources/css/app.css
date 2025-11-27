@@ -81,19 +81,12 @@
         @apply border-border;
     }
 
-    /* html {
-        font-size: 18px;
-    } */
-
     body {
         @apply bg-background text-foreground;
     }
 
     ::selection {
-        /* background-color: var(--color-primary);
-        color: var(--color-primary-foreground); */
-
-        background-color: var(--color-primary-foreground);
+        background-color: var(--color-muted);
         color: var(--color-primary);
     }
 }
