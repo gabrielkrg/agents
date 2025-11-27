@@ -239,25 +239,25 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
                 <div ref={messagesEndRef} />
 
+                <Button
+                    variant="default"
+                    size="icon"
+                    onClick={() => scrollToBottom(true)}
+                    className={cn(
+                        "fixed border border-foreground/10 shadow-sm md:bottom-10 right-0 bottom-30 z-10 rounded-full -translate-x-1/2 transition-all duration-200 ease-out",
+                        isAtBottom
+                            ? "opacity-0 pointer-events-none translate-y-4"
+                            : "opacity-100 pointer-events-auto translate-y-0"
+                    )}
+                >
+                    <ArrowDownIcon className="size-4" />
+                </Button>
                 <div className="fixed bottom-0 w-full max-w-[1000px] bg-background pb-10 px-4">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => scrollToBottom(true)}
-                        className={cn(
-                            "fixed bottom-30 left-1/2 rounded-full -translate-x-1/2 transition-all duration-200 ease-out",
-                            isAtBottom
-                                ? "opacity-0 pointer-events-none translate-y-4"
-                                : "opacity-100 pointer-events-auto translate-y-0"
-                        )}
-                    >
-                        <ArrowDownIcon className="size-4" />
-                    </Button>
                     <form
                         onSubmit={handleSubmit}
                         className="relative w-full"
                     >
-                        <InputGroup className="bg-transparent !rounded-3xl pl-5 pr-1">
+                        <InputGroup className="bg-transparent !rounded-3xl pl-5 pr-1 shadow-sm">
                             <InputGroupTextarea
                                 id="message"
                                 placeholder="Type your message..."
@@ -267,7 +267,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                                 disabled={isGenerating}
                                 rows={1}
                                 onKeyDown={isDesktop ? handleTextareaKeyDown : undefined}
-                                className="min-h-0 text-base"
+                                className="min-h-0 text-base max-h-40"
                             />
                             <InputGroupAddon align="inline-end">
                                 <InputGroupButton

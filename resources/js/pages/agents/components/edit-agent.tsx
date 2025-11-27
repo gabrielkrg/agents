@@ -48,7 +48,7 @@ export default function EditAgent({ agent }: { agent: Agent }) {
                                 </div>
                                 <div className="grid gap-3">
                                     <Label htmlFor="description">Description</Label>
-                                    <Textarea id="description" name="description" rows={4} defaultValue={agent.description} />
+                                    <Textarea id="description" name="description" rows={4} className="max-h-30" defaultValue={agent.description} />
                                     <InputError message={errors.description} />
                                 </div>
                                 <div className="grid grid-cols-3 items-center gap-4">
@@ -56,7 +56,7 @@ export default function EditAgent({ agent }: { agent: Agent }) {
                                         JSON Schema
                                     </Label>
                                     <div className="col-span-3">
-                                        <Textarea id="json_schema" name="json_schema" rows={4} defaultValue={agent.json_schema ?? ''} />
+                                        <Textarea id="json_schema" name="json_schema" rows={4} className="max-h-30" defaultValue={agent.json_schema ?? ''} />
                                         <span className="text-primary text-xs">
                                             Let it be null if you want a plain text response.
                                         </span>

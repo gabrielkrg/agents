@@ -54,6 +54,7 @@ export default function CreateAgent() {
                                             id="description"
                                             name="description"
                                             rows={4}
+                                            className="max-h-30"
                                         />
                                         <InputError message={errors.description} />
                                     </div>
@@ -62,7 +63,12 @@ export default function CreateAgent() {
                                             JSON Schema
                                         </Label>
                                         <div className="col-span-3">
-                                            <Textarea id="json_schema" name="json_schema" rows={4} />
+                                            <Textarea
+                                                id="json_schema"
+                                                name="json_schema"
+                                                rows={4}
+                                                className="max-h-30"
+                                            />
                                             <span className="text-primary text-xs">
                                                 Let it be null if you want a plain text response.
                                             </span>
