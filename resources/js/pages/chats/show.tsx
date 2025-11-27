@@ -3,7 +3,7 @@ import { Chat, Message, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 import { handleTextareaKeyDown } from '@/lib/utils';
-import { ArrowDownIcon, ArrowUpIcon, Loader2Icon } from 'lucide-react';
+import { ArrowDownIcon, ArrowUp, Loader2Icon, Send } from 'lucide-react';
 import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
 import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
@@ -274,9 +274,10 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                                     type="submit"
                                     size="icon-sm"
                                     className="rounded-full"
+                                    variant="default"
                                     disabled={isGenerating}
                                 >
-                                    {isGenerating ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUpIcon className="size-4" />}
+                                    {isGenerating ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUp className="size-4" />}
                                     <span className="sr-only">Send</span>
                                 </InputGroupButton>
                             </InputGroupAddon>

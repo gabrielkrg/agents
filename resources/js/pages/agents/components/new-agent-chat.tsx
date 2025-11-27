@@ -1,8 +1,8 @@
 import { Form, Head } from '@inertiajs/react';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
-import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from '@/components/ui/input-group';
+import { ArrowUp, Loader2Icon } from 'lucide-react';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from '@/components/ui/input-group';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Agent } from '@/types';
@@ -59,8 +59,12 @@ export default function NewAgentChat({ agent }: { agent: Agent }) {
                                     type="submit"
                                     size="icon-sm"
                                     className="rounded-full"
+                                    variant="default"
                                 >
-                                    {processing ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUpIcon className="size-4" />}
+                                    {processing ?
+                                        <Loader2Icon className="size-4 animate-spin" /> :
+                                        <ArrowUp className="size-4" />
+                                    }
                                     <span className="sr-only">Send</span>
                                 </InputGroupButton>
                             </InputGroupAddon>
