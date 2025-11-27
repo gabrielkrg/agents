@@ -102,7 +102,7 @@ export default function AgentsPieChart({ agents }: { agents: Agent[] }) {
                         </PieChart>
                     </ResponsiveContainer>
                     <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                        <p className="text-4xl font-semibold">{totalChats}</p>
+                        <p className="text-4xl font-semibold dark:text-white text-black">{totalChats}</p>
                         <p className="text-sm text-slate-400">Chats</p>
                     </div>
                 </div>
