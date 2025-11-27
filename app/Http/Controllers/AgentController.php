@@ -25,9 +25,11 @@ class AgentController extends Controller
             return redirect()->back()->with('error', 'You are not authorized to view this agent');
         }
 
+        $chats = $agent->chats()->orderByDesc('created_at')->get();
+
         return Inertia::render('agents/show', [
             'agent' => $agent,
-            'chats' => $agent->chats,
+            'chats' => $chats,
         ]);
     }
 
