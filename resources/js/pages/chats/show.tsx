@@ -242,14 +242,14 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Chat ${chat.description}`} />
             <div
-                className="overflow-y-auto"
+                className="overflow-y-auto w-full"
                 style={{ maxHeight: `calc(100vh - 90px - ${formHeight}px)` }}
             >
                 <div className="flex justify-center mb-5 hidden">
                     <h1 className="text-2xl font-bold">{chat.description}</h1>
                 </div>
 
-                <div className="w-full max-w-[1000px] mx-auto bg-background px-4 mt-5">
+                <div className="px-4 mt-5 max-w-[1000px] w-full mx-auto">
                     <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
                         {messagesChat.map((message) => (
                             <ChatMessage key={message.uuid} message={message} />
@@ -278,7 +278,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                     </Button>
                 </div>
             </div>
-            <div ref={formRef} className="w-full max-w-[1000px] mx-auto bg-background px-4">
+            <div ref={formRef} className="w-full max-w-[1000px] w-full mx-auto bg-background px-4">
                 <form
                     onSubmit={handleSubmit}
                     className="relative w-full"
