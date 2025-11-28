@@ -3,7 +3,7 @@ import { Chat, Message, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 import { handleTextareaKeyDown } from '@/lib/utils';
-import { ArrowDownIcon, ArrowUp, Loader2Icon, Send } from 'lucide-react';
+import { ArrowDownIcon, ArrowUp, Loader2Icon, Plus, Send } from 'lucide-react';
 import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
 import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
@@ -79,8 +79,6 @@ const ChatMessage = memo(({ message }: { message: { id: number; role: string; co
     );
 });
 
-ChatMessage.displayName = 'ChatMessage';
-
 export default function ChatShow({ chat, messages, newChat }: { chat: Chat; messages: Message[]; newChat: string | null }) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -107,6 +105,30 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
     const [isAtBottom, setIsAtBottom] = useState(true)
 
     const messagesEndRef = useRef<HTMLDivElement | null>(null)
+    const formRef = useRef<HTMLDivElement | null>(null)
+    const [formHeight, setFormHeight] = useState(0)
+
+    useEffect(() => {
+        const updateFormHeight = () => {
+            if (formRef.current) {
+                setFormHeight(formRef.current.offsetHeight)
+            }
+        }
+
+        updateFormHeight()
+        window.addEventListener('resize', updateFormHeight)
+
+        // Observar mudanças no tamanho do formulário
+        const resizeObserver = new ResizeObserver(updateFormHeight)
+        if (formRef.current) {
+            resizeObserver.observe(formRef.current)
+        }
+
+        return () => {
+            window.removeEventListener('resize', updateFormHeight)
+            resizeObserver.disconnect()
+        }
+    }, [])
 
     const updateIsAtBottom = useCallback(() => {
         if (!messagesEndRef.current) return
@@ -219,71 +241,91 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Chat ${chat.description}`} />
-            <div className="relative flex mx-auto w-full max-w-[1000px] h-full flex-1 flex-col items-center gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="flex justify-between mb-5">
-                    <div className="flex flex-col">
-                        <h1 className="text-2xl font-bold">{chat.description}</h1>
+            <div
+                className="overflow-y-auto"
+                style={{ maxHeight: `calc(100vh - 90px - ${formHeight}px)` }}
+            >
+                <div className="flex justify-center mb-5 hidden">
+                    <h1 className="text-2xl font-bold">{chat.description}</h1>
+                </div>
+
+                <div className="w-full max-w-[1000px] mx-auto bg-background px-4 mt-5">
+                    <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
+                        {messagesChat.map((message) => (
+                            <ChatMessage key={message.uuid} message={message} />
+                        ))}
+                        {isGenerating && (
+                            <div className={assistantMessageClasses}>
+                                <TypingIndicator />
+                            </div>
+                        )}
                     </div>
-                </div>
 
-                <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
-                    {messagesChat.map((message) => (
-                        <ChatMessage key={message.uuid} message={message} />
-                    ))}
-                    {isGenerating && (
-                        <div className={assistantMessageClasses}>
-                            <TypingIndicator />
-                        </div>
-                    )}
-                </div>
+                    <div ref={messagesEndRef} />
 
-                <div ref={messagesEndRef} />
-
-                <Button
-                    variant="default"
-                    size="icon"
-                    onClick={() => scrollToBottom(true)}
-                    className={cn(
-                        "fixed border border-foreground/10 shadow-sm md:bottom-10 right-0 bottom-30 z-10 rounded-full -translate-x-1/2 transition-all duration-200 ease-out",
-                        isAtBottom
-                            ? "opacity-0 pointer-events-none translate-y-4"
-                            : "opacity-100 pointer-events-auto translate-y-0"
-                    )}
-                >
-                    <ArrowDownIcon className="size-4" />
-                </Button>
-                <div className="fixed bottom-0 w-full max-w-[1000px] bg-background pb-10 px-4">
-                    <form
-                        onSubmit={handleSubmit}
-                        className="relative w-full"
+                    <Button
+                        variant="default"
+                        size="icon"
+                        onClick={() => scrollToBottom(true)}
+                        className={cn(
+                            "fixed border border-foreground/10 shadow-sm md:bottom-10 right-0 bottom-30 z-10 rounded-full -translate-x-1/2 transition-all duration-200 ease-out",
+                            isAtBottom
+                                ? "opacity-0 pointer-events-none translate-y-4"
+                                : "opacity-100 pointer-events-auto translate-y-0"
+                        )}
                     >
-                        <InputGroup className="bg-transparent !rounded-3xl pl-5 pr-1 shadow-sm">
-                            <InputGroupTextarea
-                                id="message"
-                                placeholder="Type your message..."
-                                autoComplete="off"
-                                value={input}
-                                onChange={(event) => setInput(event.target.value)}
-                                disabled={isGenerating}
-                                rows={1}
-                                onKeyDown={isDesktop ? handleTextareaKeyDown : undefined}
-                                className="min-h-0 text-base max-h-40"
-                            />
-                            <InputGroupAddon align="inline-end">
-                                <InputGroupButton
-                                    type="submit"
-                                    size="icon-sm"
-                                    className="rounded-full"
-                                    variant="default"
-                                    disabled={isGenerating}
-                                >
-                                    {isGenerating ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUp className="size-4" />}
-                                    <span className="sr-only">Send</span>
-                                </InputGroupButton>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </form>
+                        <ArrowDownIcon className="size-4" />
+                    </Button>
                 </div>
+            </div>
+            <div ref={formRef} className="w-full max-w-[1000px] mx-auto bg-background px-4">
+                <form
+                    onSubmit={handleSubmit}
+                    className="relative w-full"
+                >
+                    <InputGroup
+                        className="bg-transparent rounded-3xl pr-1 shadow-sm bg-red-500
+                            flex items-end"
+                    >
+                        <InputGroupAddon >
+                            <InputGroupButton
+                                type="button"
+                                size="icon-sm"
+                                className="rounded-full"
+                                variant="ghost"
+                                disabled={isGenerating}
+                            >
+                                <Plus className="size-4" />
+                                <span className="sr-only">Add</span>
+                            </InputGroupButton>
+                        </InputGroupAddon>
+
+                        <InputGroupTextarea
+                            id="message"
+                            placeholder="Type your message..."
+                            autoComplete="off"
+                            value={input}
+                            onChange={(event) => setInput(event.target.value)}
+                            // disabled={isGenerating}
+                            rows={1}
+                            onKeyDown={isDesktop ? handleTextareaKeyDown : undefined}
+                            className="min-h-0 text-base max-h-50"
+                        />
+
+                        <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                                type="submit"
+                                size="icon-sm"
+                                className="rounded-full"
+                                variant="default"
+                                disabled={isGenerating}
+                            >
+                                {isGenerating ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUp className="size-4" />}
+                                <span className="sr-only">Send</span>
+                            </InputGroupButton>
+                        </InputGroupAddon>
+                    </InputGroup>
+                </form>
             </div>
         </AppLayout>
     );
