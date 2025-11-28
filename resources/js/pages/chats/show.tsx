@@ -250,7 +250,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                 </div>
 
                 <div className="px-4 mt-5 max-w-[1000px] w-full mx-auto">
-                    <div id="messages-container" className="flex flex-col gap-4 w-full pb-25">
+                    <div id="messages-container" className="flex flex-col gap-4 w-full pb-25 overflow-hidden">
                         {messagesChat.map((message) => (
                             <ChatMessage key={message.uuid} message={message} />
                         ))}
