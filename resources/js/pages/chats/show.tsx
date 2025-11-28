@@ -283,10 +283,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
                     onSubmit={handleSubmit}
                     className="relative w-full"
                 >
-                    <InputGroup
-                        className="bg-transparent rounded-3xl pr-1 shadow-sm bg-red-500
-                            flex items-end"
-                    >
+                    <InputGroup className="bg-transparent rounded-3xl pr-1 shadow-sm flex items-end">
                         <InputGroupAddon >
                             <InputGroupButton
                                 type="button"
