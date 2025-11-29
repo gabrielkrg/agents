@@ -1,7 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
-import { ArrowUp, Loader2Icon } from 'lucide-react';
+import { ArrowUp, Loader2Icon, Plus } from 'lucide-react';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from '@/components/ui/input-group';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
@@ -41,7 +41,19 @@ export default function NewAgentChat({ agent }: { agent: Agent }) {
                             <InputError message={errors.agent_uuid} />
                         </div>
 
-                        <InputGroup className="bg-transparent !rounded-3xl pl-5 pr-1">
+                        <InputGroup className="bg-transparent rounded-3xl pr-1 shadow-sm flex items-end">
+                            <InputGroupAddon >
+                                <InputGroupButton
+                                    type="button"
+                                    size="icon-sm"
+                                    className="rounded-full"
+                                    variant="ghost"
+                                >
+                                    <Plus className="size-4" />
+                                    <span className="sr-only">Add</span>
+                                </InputGroupButton>
+                            </InputGroupAddon>
+
                             <InputGroupTextarea
                                 id="content"
                                 name="content"
@@ -51,20 +63,18 @@ export default function NewAgentChat({ agent }: { agent: Agent }) {
                                 onChange={(event) => setInput(event.target.value)}
                                 rows={1}
                                 onKeyDown={isDesktop ? handleTextareaKeyDown : undefined}
-                                className="min-h-0 text-base"
+                                className="min-h-0 text-base max-h-50"
                             />
+
                             <InputGroupAddon align="inline-end">
                                 <InputGroupButton
-                                    disabled={processing}
                                     type="submit"
                                     size="icon-sm"
                                     className="rounded-full"
                                     variant="default"
+                                    disabled={processing}
                                 >
-                                    {processing ?
-                                        <Loader2Icon className="size-4 animate-spin" /> :
-                                        <ArrowUp className="size-4" />
-                                    }
+                                    {processing ? <Loader2Icon className="size-4 animate-spin" /> : <ArrowUp className="size-4" />}
                                     <span className="sr-only">Send</span>
                                 </InputGroupButton>
                             </InputGroupAddon>
