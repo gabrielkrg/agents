@@ -14,7 +14,6 @@ const chartColors = [
     '#E0C0B0',
 ];
 
-
 type ChartDatum = {
     name: string;
     value: number;

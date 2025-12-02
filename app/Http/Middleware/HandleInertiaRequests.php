@@ -38,7 +38,7 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        return [
+        $shared = [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
@@ -47,5 +47,21 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+
+        // Adicionar agentes apenas se o usuário estiver autenticado
+        if ($request->user()) {
+            $shared['agents'] = $request->user()
+                ->agents()
+                ->with([
+                    'chats' => function ($query) {
+                        $query->orderByDesc('created_at')->limit(10);
+                    },
+                ])
+                ->orderByDesc('created_at')
+                ->limit(10)
+                ->get();
+        }
+
+        return $shared;
     }
 }

@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Agent, Chat } from '@/types';
+import { Agent, Chat, SharedData } from '@/types';
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton } from '@/components/ui/sidebar';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { index as agentsIndex } from '@/routes/agents';
 import { show } from '@/routes/agents';
 import { show as showChat } from '@/routes/chats';
@@ -11,20 +9,13 @@ import CreateAgentMenu from '@/components/create-agent-menu';
 
 export default function NavAgents({ showLabel = false }: { showLabel: boolean }) {
 
-    const [agents, setAgents] = useState<Agent[]>([]);
-
-    useEffect(() => {
-        axios.get('/api/agents').then((response) => {
-            setAgents(response.data);
-        });
-    }, []);
+    const { agents = [] } = usePage<SharedData>().props;
 
     return (
         <>
             <SidebarGroup>
                 <SidebarGroupLabel className={showLabel ? 'block' : 'hidden'}>Agents</SidebarGroupLabel>
                 <SidebarMenu>
-
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                             <CreateAgentMenu />
