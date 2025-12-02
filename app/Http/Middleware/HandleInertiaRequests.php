@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Illuminate\Support\Facades\Cache;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -50,16 +51,21 @@ class HandleInertiaRequests extends Middleware
 
         // Adicionar agentes apenas se o usuário estiver autenticado
         if ($request->user()) {
-            $shared['agents'] = $request->user()
-                ->agents()
-                ->with([
-                    'chats' => function ($query) {
-                        $query->orderByDesc('created_at')->limit(10);
-                    },
-                ])
-                ->orderByDesc('created_at')
-                ->limit(10)
-                ->get();
+            $userId = $request->user()->id;
+            $cacheKey = "user_{$userId}_agents_with_chats";
+
+            $shared['agents'] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($request) {
+                return $request->user()
+                    ->agents()
+                    ->with([
+                        'chats' => function ($query) {
+                            $query->orderByDesc('created_at')->limit(10);
+                        },
+                    ])
+                    ->orderByDesc('created_at')
+                    ->limit(10)
+                    ->get();
+            });
         }
 
         return $shared;

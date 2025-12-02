@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Message;
+use Illuminate\Support\Facades\Cache;
+use App\Models\Chat;
 
 class MessageController extends Controller
 {
@@ -34,6 +36,18 @@ class MessageController extends Controller
             'chat_uuid' => $request->chat_uuid,
             'user_id' => $user->id,
         ]);
+
+        // Invalidar cache de mensagens do chat
+        Cache::forget("chat_{$request->chat_uuid}_messages");
+
+        // Invalidar cache de chats do agente
+        $chat = Chat::find($request->chat_uuid);
+        if ($chat) {
+            Cache::forget("agent_{$chat->agent_uuid}_chats");
+        }
+
+        // Invalidar cache de agents do usuário
+        Cache::forget("user_{$user->id}_agents_with_chats");
 
         return response()->json($message);
     }

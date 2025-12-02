@@ -8,6 +8,7 @@ use App\Models\Agent;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\Message;
+use Illuminate\Support\Facades\Cache;
 
 class ChatController extends Controller
 {
@@ -25,9 +26,21 @@ class ChatController extends Controller
 
         $chat->load('agent');
 
+        // Cache apenas para chats com muitas mensagens (>50)
+        $messageCount = $chat->messages()->count();
+        $cacheKey = "chat_{$chat->uuid}_messages";
+
+        if ($messageCount > 50) {
+            $messages = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($chat) {
+                return $chat->messages;
+            });
+        } else {
+            $messages = $chat->messages;
+        }
+
         return Inertia::render('chats/show', [
             'chat' => $chat,
-            'messages' => $chat->messages,
+            'messages' => $messages,
             'newChat' => $request->query('newChat'),
         ]);
     }
@@ -45,11 +58,16 @@ class ChatController extends Controller
             return redirect()->back()->with('error', 'You are not authorized to create a chat for this agent');
         }
 
-        Chat::create([
+        $chat = Chat::create([
             'description' => $request->description,
             'agent_uuid' => $request->agent_uuid,
             'user_id' => $user->id,
         ]);
+
+        // Invalidar cache de chats do agente
+        Cache::forget("agent_{$request->agent_uuid}_chats");
+        // Invalidar cache de agents do usuário
+        Cache::forget("user_{$user->id}_agents_with_chats");
 
         return redirect()->back()->with('success', 'Chat created successfully');
     }
@@ -98,6 +116,13 @@ class ChatController extends Controller
 
         DB::commit();
 
+        // Invalidar cache de mensagens do chat
+        Cache::forget("chat_{$chat->uuid}_messages");
+        // Invalidar cache de chats do agente
+        Cache::forget("agent_{$request->agent_uuid}_chats");
+        // Invalidar cache de agents do usuário
+        Cache::forget("user_{$user->id}_agents_with_chats");
+
         return redirect()->to(route('chats.show', [$request->agent_uuid, $chat->uuid]) . '?newChat=true');
     }
 
@@ -115,6 +140,11 @@ class ChatController extends Controller
 
         $chat->update($request->all());
 
+        // Invalidar cache de chats do agente
+        Cache::forget("agent_{$chat->agent_uuid}_chats");
+        // Invalidar cache de agents do usuário
+        Cache::forget("user_{$user->id}_agents_with_chats");
+
         return redirect()->back()->with('success', 'Chat updated successfully');
     }
 
@@ -126,8 +156,18 @@ class ChatController extends Controller
             return redirect()->back()->with('error', 'You are not authorized to delete this chat');
         }
 
+        $agentUuid = $chat->agent_uuid;
+        $chatUuid = $chat->uuid;
+
         $chat->delete();
 
-        return redirect()->route('agents.show', $chat->agent_uuid)->with('success', 'Chat deleted successfully');
+        // Invalidar cache de mensagens do chat
+        Cache::forget("chat_{$chatUuid}_messages");
+        // Invalidar cache de chats do agente
+        Cache::forget("agent_{$agentUuid}_chats");
+        // Invalidar cache de agents do usuário
+        Cache::forget("user_{$user->id}_agents_with_chats");
+
+        return redirect()->route('agents.show', $agentUuid)->with('success', 'Chat deleted successfully');
     }
 }
