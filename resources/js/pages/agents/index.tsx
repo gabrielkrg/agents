@@ -1,11 +1,9 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { index as agentsIndex } from '@/routes/agents';
 import CreateAgent from './components/create-agent';
 import { Agent } from '@/types';
-import ListAgents from './components/list-agents';
 import Heading from '@/components/heading';
 import TableAgents from './components/table-agents';
 
@@ -15,6 +13,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: agentsIndex().url,
     },
 ];
+
 
 export default function Agents({ agents }: { agents: Agent[] }) {
     return (

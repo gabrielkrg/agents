@@ -12,7 +12,8 @@ class AgentController extends Controller
 {
     public function index()
     {
-        $agents = auth()->user()->agents;
+        $agents = auth()->user()->agents()->orderByDesc('created_at')->with('chats')->get();
+
         return Inertia::render('agents/index', [
             'agents' => $agents,
         ]);

@@ -85,8 +85,18 @@ const columns: ColumnDef<Agent>[] = [
     },
     {
         accessorKey: 'chats',
-        header: 'Chats',
-        enableSorting: false,
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-3"
+                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+                Chats
+                <ArrowUpDown className="ml-2 size-4" />
+            </Button>
+        ),
+        // enableSorting: true,
         cell: ({ row }) => (
             <span className="text-sm text-muted-foreground">
                 {row.original.chats?.length ?? 0}
