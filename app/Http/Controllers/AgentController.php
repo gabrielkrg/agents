@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Agent;
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class AgentController extends Controller
@@ -24,7 +23,7 @@ class AgentController extends Controller
         $user = auth()->user();
 
         if (!$user->agents->contains($agent->uuid)) {
-            return redirect()->back()->with('error', 'You are not authorized to view this agent');
+            return abort(403);
         }
 
         $cacheKey = "agent_{$agent->uuid}_chats";
@@ -47,6 +46,7 @@ class AgentController extends Controller
         ]);
 
         $user = auth()->user();
+
         $agent = Agent::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -54,7 +54,6 @@ class AgentController extends Controller
             'user_id' => $user->id,
         ]);
 
-        // Invalidar cache de agents do usuário
         Cache::forget("user_{$user->id}_agents_with_chats");
 
         return redirect()->route('agents.show', $agent)->with('success', 'Agent created successfully');
@@ -68,14 +67,15 @@ class AgentController extends Controller
             'json_schema' => 'nullable|json',
         ]);
 
-        // dd($request->all());
-
         $user = auth()->user();
+
+        if (!$user->agents->contains($agent->uuid)) {
+            return abort(403);
+        }
+
         $agent->update($request->all());
 
-        // Invalidar cache de agents do usuário
         Cache::forget("user_{$user->id}_agents_with_chats");
-        // Invalidar cache de chats do agente
         Cache::forget("agent_{$agent->uuid}_chats");
 
         return redirect()->back()->with('success', 'Agent updated successfully');
@@ -84,14 +84,15 @@ class AgentController extends Controller
     public function destroy(Agent $agent)
     {
         $user = auth()->user();
-        $agentUuid = $agent->uuid;
+
+        if (!$user->agents->contains($agent->uuid)) {
+            return abort(403);
+        }
 
         $agent->delete();
 
-        // Invalidar cache de agents do usuário
         Cache::forget("user_{$user->id}_agents_with_chats");
-        // Invalidar cache de chats do agente
-        Cache::forget("agent_{$agentUuid}_chats");
+        Cache::forget("agent_{$agent->uuid}_chats");
 
         return redirect()->route('dashboard')->with('success', 'Agent deleted successfully');
     }
