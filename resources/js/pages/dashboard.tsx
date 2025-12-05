@@ -28,7 +28,12 @@ export default function Dashboard({ agents }: { agents: Agent[] }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <Heading title="Dashboard" description="Manage your dashboard" />
+                <div>
+                    <h2 className='text-2xl font-bold tracking-tight'>Dashboard</h2>
+                    <p className='text-muted-foreground'>
+                        Here&apos;s a overview of your agents and chats!
+                    </p>
+                </div>
                 <SummaryCards agents={agents} />
                 <div className="grid auto-rows-min gap-4 grid-cols-5 relative min-h-[100vh] flex-1 overflow-hidden md:min-h-min">
                     <Card className="md:col-span-3 col-span-5 flex-1 gap-2">

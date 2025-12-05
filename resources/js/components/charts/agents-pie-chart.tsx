@@ -2,16 +2,21 @@ import { Agent } from '@/types';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 const chartColors = [
-    '#1A7F7F',
-    '#599E9E',
-    '#106060',
-    '#70B9D6',
-    '#A3D6A3',
-    '#D4D4C8',
-    '#3C4A5A',
-    '#FBFBF6',
-    '#D0D4D8',
-    '#E0C0B0',
+    'var(--color-chart-1)',
+    'var(--color-chart-2)',
+    'var(--color-chart-3)',
+    'var(--color-chart-4)',
+    'var(--color-chart-5)',
+    'var(--color-chart-6)',
+    'var(--color-chart-7)',
+    'var(--color-chart-8)',
+    'var(--color-chart-9)',
+    'var(--color-chart-10)',
+    'var(--color-chart-11)',
+    'var(--color-chart-12)',
+    'var(--color-chart-13)',
+    'var(--color-chart-14)',
+    'var(--color-chart-15)',
 ];
 
 type ChartDatum = {
