@@ -7,7 +7,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@import './claude.css';
+@import './custom.css';
 
 @layer base {
     * {
