@@ -50,12 +50,10 @@ log "--- Starting Laravel Deployment ---"
 log "Project Root: $PROJECT_ROOT"
 
 # 1. Pull latest code (if not handled by CI/CD like GitHub Actions checkout)
-#    If GitHub Actions is handling the `git clone` or `git pull`, you might
-#    not need this step here, or it might be redundant.
-#    For local manual deployment, this is useful.
-# log "1. Pulling latest changes from Git..."
-# git pull origin main # or your main branch
-# check_status "Git pull"
+log "1. Fetching latest code..."
+git fetch --all
+git reset --hard origin/main
+check_status "Git sync"
 
 # 2. Install Composer Dependencies
 log "2. Installing Composer dependencies..."
