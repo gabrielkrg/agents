@@ -7,17 +7,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
-@import './typewriter.css';
-@import './spring-bouquet.css';
-@import './kodama-grove.css';
-@import './sunset-horizon.css';
-@import './cyberpunk.css';
-@import './claymorphism.css';
-@import './supabase.css';
-*/
-
-@import './custom.css';
+@import './claude.css';
 
 @layer base {
     * {
