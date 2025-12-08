@@ -6,7 +6,6 @@ import { Trash } from 'lucide-react';
 import { Form } from '@inertiajs/react';
 import { destroy } from '@/routes/agents';
 import { CheckIcon, Loader2Icon } from 'lucide-react';
-import InputError from '@/components/input-error';
 
 export default function DeleteAgent({ agent }: { agent: Agent }) {
     const [open, setOpen] = useState(false);

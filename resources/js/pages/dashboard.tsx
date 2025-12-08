@@ -1,4 +1,4 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { Agent, type BreadcrumbItem } from '@/types';
@@ -7,11 +7,9 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import Heading from '@/components/heading';
 import TableAgents from './agents/components/table-agents';
 import AgentsPieChart from '@/components/charts/agents-pie-chart';
 import SummaryCards from './dashboard/components/summary-cards';

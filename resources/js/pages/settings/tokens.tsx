@@ -6,6 +6,7 @@ import SettingsLayout from '@/layouts/settings/layout';
 import { index } from '@/routes/tokens';
 import CreateToken from '@/components/create-token';
 import DeleteToken from '@/components/delete-token';
+import { Token } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -14,7 +15,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Tokens({ tokens }: { tokens: any[] }) {
+export default function Tokens({ tokens }: { tokens: Token[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Tokens" />
@@ -28,7 +29,7 @@ export default function Tokens({ tokens }: { tokens: any[] }) {
                     <CreateToken />
 
                     <div className="grid divide-y">
-                        {tokens.map((token: any) => (
+                        {tokens.map((token: Token) => (
                             <div key={token.id} className="flex items-center justify-between">
                                 <p>{token.name}</p>
                                 <p>{token.token}</p>

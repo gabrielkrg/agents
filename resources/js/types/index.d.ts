@@ -74,3 +74,9 @@ export interface Message {
     created_at: string;
     updated_at: string;
 }
+
+export interface Token {
+    id: number;
+    name: string;
+    token: string;
+}

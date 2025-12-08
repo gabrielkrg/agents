@@ -3,7 +3,7 @@ import { Chat, Message, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 import { handleTextareaKeyDown } from '@/lib/utils';
-import { ArrowDownIcon, ArrowUp, Loader2Icon, Plus, Send } from 'lucide-react';
+import { ArrowDownIcon, ArrowUp, Loader2Icon, Plus } from 'lucide-react';
 import { InputGroup, InputGroupTextarea, InputGroupAddon, InputGroupButton } from '@/components/ui/input-group';
 import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
@@ -51,7 +51,7 @@ function generateAiResponse(agent_uuid: string, chat_uuid: string) {
         agent_uuid: agent_uuid,
         chat_uuid: chat_uuid,
     }).then((response) => {
-        return response.data as { parsed: any, raw: string };
+        return response.data as { parsed: unknown, raw: string };
     })
 }
 

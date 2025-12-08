@@ -1,4 +1,4 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form } from '@inertiajs/react';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import { ArrowUp, Loader2Icon, Plus } from 'lucide-react';

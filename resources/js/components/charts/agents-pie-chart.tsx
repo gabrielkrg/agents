@@ -48,6 +48,8 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
         <div className="rounded-xl border bg-background/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
             <p className="font-semibold dark:text-white text-black">{name}</p>
             <div className="mt-1 h-1.5 rounded-full" style={{ background: dataPoint?.color }} />
+            <p className="text-xs text-muted-foreground">{value}</p>
+            <p className="text-xs text-muted-foreground">{percent}</p>
         </div>
     );
 };
@@ -86,7 +88,7 @@ export default function AgentsPieChart({ agents }: { agents: Agent[] }) {
                             margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
                             tabIndex={-1}
                         >
-                            <Tooltip content={<ChartTooltip />} />
+                            <Tooltip content={<ChartTooltip active={true} payload={[]} />} />
                             <Pie
                                 data={chartData}
                                 dataKey="value"
@@ -98,6 +100,7 @@ export default function AgentsPieChart({ agents }: { agents: Agent[] }) {
                                 endAngle={-270}
                                 stroke="transparent"
                                 cornerRadius={0}
+
                             >
                                 {chartData.map((entry) => (
                                     <Cell key={entry.name} fill={entry.color} />

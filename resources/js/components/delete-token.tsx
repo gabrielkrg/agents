@@ -1,24 +1,9 @@
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Form } from "@inertiajs/react"
-import { store } from "@/routes/tokens"
-import { CheckIcon, Loader2Icon, Trash } from "lucide-react"
-import InputError from "./input-error"
+import { CheckIcon, Loader2Icon } from "lucide-react"
 
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
@@ -29,10 +14,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useState } from "react"
 import { destroy } from "@/routes/tokens"
+import { Token } from "@/types"
 
-
-
-export default function DeleteToken({ token }: { token: any }) {
+export default function DeleteToken({ token }: { token: Token }) {
     const [open, setOpen] = useState(false);
 
     const handleSuccess = () => {
