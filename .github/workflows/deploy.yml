@@ -3,43 +3,29 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - main # Or your production branch
+      - master 
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest # Or your desired runner
-    environment: production # Use GitHub Environments for secrets and deployments
+    runs-on: ubuntu-latest
+    # environment: production
     env:
-      SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_USER: ${{ secrets.SSH_USER }}
-      SSH_PORT: 22
-      SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      APP_DIR: /var/www/agents-gpt # Your application's root directory on the server
+      APP_DIR: /var/www/agents-gpt 
+
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # (Optional) If your server doesn't have Node/NPM/Composer already
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '18' # Or your desired Node.js version
-      # - name: Setup PHP
-      #   uses: shivammathur/setup-php@v2
-      #   with:
-      #     php-version: '8.2' # Or your desired PHP version
-      #     extensions: mbstring, pdo_mysql, zip # Common extensions
-
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ env.SSH_HOST }}
-          username: ${{ env.SSH_USER }}
-          key: ${{ env.SSH_KEY }}
-          port: ${{ env.SSH_PORT }}
+          host: ${{ secrets.SSH_HOST }}      
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }} 
+          port: ${{ secrets.SSH_PORT }}                              
           script: |
-            cd ${{ env.APP_DIR }}
+            cd ${{ env.APP_DIR }} # APP_DIR can remain in env if your script needs it
 
             # Ensure the deploy.sh script is executable on the server
             # (You might want to commit it with +x or chmod it during setup)
@@ -50,5 +36,5 @@ jobs:
 
             # Important: After deployment, restart your PHP-FPM service
             # or web server if necessary, to pick up new code and configs.
-            sudo service php8.2-fpm reload # Adjust service name for your PHP version
+            # sudo service php8.3-fpm reload # Adjust service name for your PHP version
             # sudo systemctl restart nginx # Or apache

@@ -17,6 +17,11 @@
 #   - .env file configured
 # =======================================================
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+
 # --- Configuration Variables ---
 # Define paths and commands here for easy modification
 PROJECT_ROOT=$(pwd) # Assumes script is run from project root
