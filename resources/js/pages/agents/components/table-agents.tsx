@@ -144,29 +144,35 @@ export default function TableAgents({ agents }: { agents: Agent[] }) {
 
     const data = useMemo(() => agents, [agents]);
 
-    const table = useReactTable({
-        data,
-        columns,
-        state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
-            rowSelection,
-        },
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: setRowSelection,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        initialState: {
-            pagination: {
-                pageSize: 10,
+    const tableConfig = useMemo(
+        () => ({
+            data,
+            columns,
+            state: {
+                sorting,
+                columnFilters,
+                columnVisibility,
+                rowSelection,
             },
-        },
-    });
+            onSortingChange: setSorting,
+            onColumnFiltersChange: setColumnFilters,
+            onColumnVisibilityChange: setColumnVisibility,
+            onRowSelectionChange: setRowSelection,
+            getCoreRowModel: getCoreRowModel(),
+            getPaginationRowModel: getPaginationRowModel(),
+            getSortedRowModel: getSortedRowModel(),
+            getFilteredRowModel: getFilteredRowModel(),
+            initialState: {
+                pagination: {
+                    pageSize: 10,
+                },
+            },
+        }),
+        [data, sorting, columnFilters, columnVisibility, rowSelection]
+    );
+
+    // eslint-disable-next-line react-hooks/incompatible-library
+    const table = useReactTable(tableConfig);
 
     const totalRows = table.getFilteredRowModel().rows.length;
 

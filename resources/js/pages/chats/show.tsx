@@ -55,7 +55,7 @@ function generateAiResponse(agent_uuid: string, chat_uuid: string) {
     })
 }
 
-const ChatMessage = memo(({ message }: { message: { id: number; role: string; content: string } }) => {
+const ChatMessage = memo(({ message }: { message: MessageChat }) => {
     return (
         <div
             className={cn(message.role === "user"
@@ -79,6 +79,12 @@ const ChatMessage = memo(({ message }: { message: { id: number; role: string; co
     );
 });
 
+export interface MessageChat {
+    uuid: string;
+    role: "user" | "model";
+    content: string;
+}
+
 export default function ChatShow({ chat, messages, newChat }: { chat: Chat; messages: Message[]; newChat: string | null }) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -98,7 +104,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
     const [input, setInput] = useState("")
     const inputLength = input.trim().length
 
-    const [messagesChat, setMessagesChat] = useState<any[]>(messages)
+    const [messagesChat, setMessagesChat] = useState<MessageChat[]>(messages)
     const [isGenerating, setIsGenerating] = useState(false)
     const hasGeneratedAiMessage = useRef(false)
     const [isDesktop, setIsDesktop] = useState(false)
