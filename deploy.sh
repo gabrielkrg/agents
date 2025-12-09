@@ -85,10 +85,14 @@ check_status "Optimize clear"
 #    This speeds up subsequent requests but requires you to clear
 #    cache if .env or config files change.
 # log "7. Caching configuration and routes (optional)..."
-# $PHP_ARTISAN config:cache
-# check_status "Config cache"
-# $PHP_ARTISAN route:cache
-# check_status "Route cache"
+$PHP_ARTISAN config:cache
+check_status "Config cache"
+$PHP_ARTISAN route:cache
+check_status "Route cache"
+$PHP_ARTISAN config:clear
+$PHP_ARTISAN cache:clear
+check_status "Cache clear"
+
 
 # 8. (Optional) Symlink Storage
 #    Ensure storage is linked if it's not done via other means
