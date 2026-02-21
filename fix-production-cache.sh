@@ -25,10 +25,10 @@ rm -rf storage/framework/cache/data/*
 rm -rf storage/framework/views/*
 
 # 5. Recriar caches (apenas se não houver erros)
-echo "4. Recriando caches..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+#echo "4. Recriando caches..."
+#php artisan config:cache
+#php artisan route:cache
+#php artisan view:cache
 
-echo "✅ Cache corrigido! Teste a aplicação agora."
+echo "✅ Cache corrigido!"
 
