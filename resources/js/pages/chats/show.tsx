@@ -9,6 +9,7 @@ import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
 import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import axios from 'axios';
+import { getEcho } from '@/echo';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Components } from "react-markdown";
@@ -46,58 +47,13 @@ function storeMessage(message: string, role: string, chat_uuid: string, agent_uu
     })
 }
 
-const POLL_INTERVAL_MS = 1500;
-const POLL_TIMEOUT_MS = 90000;
-
-function fetchChatMessages(chat_uuid: string) {
-    return axios.get<MessageChat[]>(`/api/chats/${chat_uuid}/messages`).then((res) => res.data);
-}
+const BROADCAST_TIMEOUT_MS = 120000;
 
 function generateAiResponse(agent_uuid: string, chat_uuid: string) {
     return axios.post('/api/gemini/generate', {
         agent_uuid: agent_uuid,
         chat_uuid: chat_uuid,
     });
-}
-
-function pollUntilModelMessage(
-    chatUuid: string,
-    initialLength: number,
-    setMessagesChat: React.Dispatch<React.SetStateAction<MessageChat[]>>,
-    setIsGenerating: (v: boolean) => void,
-): () => void {
-    let cancelled = false;
-    let timeoutId: number;
-    let intervalId: number;
-    const stop = () => {
-        cancelled = true;
-        clearTimeout(timeoutId);
-        clearInterval(intervalId);
-    };
-    timeoutId = window.setTimeout(() => {
-        stop();
-        setIsGenerating(false);
-    }, POLL_TIMEOUT_MS);
-    intervalId = window.setInterval(() => {
-        if (cancelled) return;
-        fetchChatMessages(chatUuid)
-            .then((messages) => {
-                if (
-                    cancelled ||
-                    messages.length <= initialLength ||
-                    messages[messages.length - 1].role !== 'model'
-                ) {
-                    return;
-                }
-                stop();
-                setMessagesChat(
-                    messages.map((m) => ({ uuid: m.uuid, role: m.role, content: m.content })),
-                );
-                setIsGenerating(false);
-            })
-            .catch(() => {});
-    }, POLL_INTERVAL_MS);
-    return stop;
 }
 
 const ChatMessage = memo(({ message }: { message: MessageChat }) => {
@@ -157,7 +113,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
     const messagesEndRef = useRef<HTMLDivElement | null>(null)
     const formRef = useRef<HTMLDivElement | null>(null)
-    const pollCleanupRef = useRef<(() => void) | null>(null)
+    const broadcastTimeoutRef = useRef<number | null>(null)
     const [formHeight, setFormHeight] = useState(0)
 
     useEffect(() => {
@@ -190,7 +146,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         setIsAtBottom(rect.bottom <= viewportHeight + 8)
     }, [])
 
-    function addMessage(message: Message) {
+    function addMessage(message: Message | MessageChat) {
         setMessagesChat((prev) => [
             ...prev,
             {
@@ -245,10 +201,33 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
     useEffect(() => {
         return () => {
-            pollCleanupRef.current?.();
-            pollCleanupRef.current = null;
+            if (broadcastTimeoutRef.current != null) {
+                window.clearTimeout(broadcastTimeoutRef.current);
+                broadcastTimeoutRef.current = null;
+            }
         };
     }, []);
+
+    useEffect(() => {
+        const Echo = getEcho();
+        if (!Echo) return;
+
+        const channelName = `private-chat.${chat.uuid}`;
+        const channel = Echo.private(channelName);
+
+        channel.listen('.GeminiResponseGenerated', (e: { message: MessageChat }) => {
+            if (broadcastTimeoutRef.current != null) {
+                window.clearTimeout(broadcastTimeoutRef.current);
+                broadcastTimeoutRef.current = null;
+            }
+            addMessage(e.message);
+            setIsGenerating(false);
+        });
+
+        return () => {
+            Echo.leave(channelName);
+        };
+    }, [chat.uuid]);
 
     useEffect(() => {
         if (!newChat || hasGeneratedAiMessage.current) return;
@@ -259,12 +238,10 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         generateAiResponse(chat.agent_uuid, chat.uuid)
             .then((response) => {
                 if (response.status === 202) {
-                    pollCleanupRef.current = pollUntilModelMessage(
-                        chat.uuid,
-                        messagesChat.length,
-                        setMessagesChat,
-                        setIsGenerating,
-                    );
+                    broadcastTimeoutRef.current = window.setTimeout(() => {
+                        broadcastTimeoutRef.current = null;
+                        setIsGenerating(false);
+                    }, BROADCAST_TIMEOUT_MS);
                 } else {
                     setIsGenerating(false);
                 }
@@ -274,10 +251,12 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
             });
 
         return () => {
-            pollCleanupRef.current?.();
-            pollCleanupRef.current = null;
+            if (broadcastTimeoutRef.current != null) {
+                window.clearTimeout(broadcastTimeoutRef.current);
+                broadcastTimeoutRef.current = null;
+            }
         };
-    }, [newChat, chat.agent_uuid, chat.uuid, messagesChat.length])
+    }, [newChat, chat.agent_uuid, chat.uuid])
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -286,6 +265,10 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
         const currentInput = input;
         setInput('');
+        if (broadcastTimeoutRef.current != null) {
+            window.clearTimeout(broadcastTimeoutRef.current);
+            broadcastTimeoutRef.current = null;
+        }
         setIsGenerating(true);
 
         try {
@@ -300,13 +283,10 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
             const response = await generateAiResponse(chat.agent_uuid, chat.uuid);
             if (response.status === 202) {
-                pollCleanupRef.current?.();
-                pollCleanupRef.current = pollUntilModelMessage(
-                    chat.uuid,
-                    messagesChat.length + 1,
-                    setMessagesChat,
-                    setIsGenerating,
-                );
+                broadcastTimeoutRef.current = window.setTimeout(() => {
+                    broadcastTimeoutRef.current = null;
+                    setIsGenerating(false);
+                }, BROADCAST_TIMEOUT_MS);
             } else {
                 setIsGenerating(false);
             }

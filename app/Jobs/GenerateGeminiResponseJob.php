@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\GeminiResponseGenerated;
 use App\Models\Agent;
 use App\Models\Chat;
 use App\Models\Message;
@@ -44,7 +45,7 @@ class GenerateGeminiResponseJob implements ShouldQueue
 
         $response = $geminiService->generateContent($agent, $chat, $request);
 
-        Message::create([
+        $message = Message::create([
             'content' => $response['raw'],
             'role' => 'model',
             'chat_uuid' => $this->chatUuid,
@@ -56,5 +57,7 @@ class GenerateGeminiResponseJob implements ShouldQueue
         Cache::forget("user_{$this->userId}_agents_with_chats");
 
         $agent->increment('count');
+
+        broadcast(new GeminiResponseGenerated($message));
     }
 }
