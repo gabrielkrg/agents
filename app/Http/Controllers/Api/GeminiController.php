@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Jobs\GenerateGeminiResponseJob;
 use App\Models\Agent;
-use App\Models\Chat;
 use App\Services\GeminiService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GeminiController extends Controller
 {
-    public function generate(Request $request, GeminiService $geminiService): JsonResponse
+    public function generate(Request $request): JsonResponse
     {
         $request->validate([
             'agent_uuid' => 'required|exists:agents,uuid',
@@ -21,22 +20,21 @@ class GeminiController extends Controller
 
         $user = auth()->user();
 
-        if (!$user->agents->contains($request->agent_uuid)) {
+        if (! $user->agents->pluck('uuid')->contains($request->agent_uuid)) {
             return response()->json(['error' => 'You are not authorized to generate content for this agent'], 403);
         }
 
-        if (!$user->chats->contains($request->chat_uuid)) {
+        if (! $user->chats->pluck('uuid')->contains($request->chat_uuid)) {
             return response()->json(['error' => 'You are not authorized to generate content for this chat'], 403);
         }
 
-        $agent = Agent::find($request->agent_uuid);
-        $chat = Chat::find($request->chat_uuid);
+        GenerateGeminiResponseJob::dispatch(
+            $request->agent_uuid,
+            $request->chat_uuid,
+            $user->id
+        );
 
-        $response = $geminiService->generateContent($agent, $chat, $request);
-
-        $agent->increment('count');
-
-        return response()->json($response);
+        return response()->json(['queued' => true], 202);
     }
 
     public function generateSingle(Request $request, GeminiService $geminiService): JsonResponse
@@ -48,13 +46,13 @@ class GeminiController extends Controller
 
         $agent = $request->agent_uuid ? Agent::find($request->agent_uuid) : null;
 
-        if ($agent && !auth()->user()->agents->contains($agent->uuid)) {
+        if ($agent && ! auth()->user()->agents->pluck('uuid')->contains($agent->uuid)) {
             return response()->json(['error' => 'You are not authorized to generate content for this agent'], 403);
         }
 
         $response = $geminiService->generateContentSingle($agent, $request);
 
-        $agent->increment('count');
+        $agent?->increment('count');
 
         return response()->json($response);
     }

@@ -46,13 +46,58 @@ function storeMessage(message: string, role: string, chat_uuid: string, agent_uu
     })
 }
 
+const POLL_INTERVAL_MS = 1500;
+const POLL_TIMEOUT_MS = 90000;
+
+function fetchChatMessages(chat_uuid: string) {
+    return axios.get<MessageChat[]>(`/api/chats/${chat_uuid}/messages`).then((res) => res.data);
+}
+
 function generateAiResponse(agent_uuid: string, chat_uuid: string) {
     return axios.post('/api/gemini/generate', {
         agent_uuid: agent_uuid,
         chat_uuid: chat_uuid,
-    }).then((response) => {
-        return response.data as { parsed: unknown, raw: string };
-    })
+    });
+}
+
+function pollUntilModelMessage(
+    chatUuid: string,
+    initialLength: number,
+    setMessagesChat: React.Dispatch<React.SetStateAction<MessageChat[]>>,
+    setIsGenerating: (v: boolean) => void,
+): () => void {
+    let cancelled = false;
+    let timeoutId: number;
+    let intervalId: number;
+    const stop = () => {
+        cancelled = true;
+        clearTimeout(timeoutId);
+        clearInterval(intervalId);
+    };
+    timeoutId = window.setTimeout(() => {
+        stop();
+        setIsGenerating(false);
+    }, POLL_TIMEOUT_MS);
+    intervalId = window.setInterval(() => {
+        if (cancelled) return;
+        fetchChatMessages(chatUuid)
+            .then((messages) => {
+                if (
+                    cancelled ||
+                    messages.length <= initialLength ||
+                    messages[messages.length - 1].role !== 'model'
+                ) {
+                    return;
+                }
+                stop();
+                setMessagesChat(
+                    messages.map((m) => ({ uuid: m.uuid, role: m.role, content: m.content })),
+                );
+                setIsGenerating(false);
+            })
+            .catch(() => {});
+    }, POLL_INTERVAL_MS);
+    return stop;
 }
 
 const ChatMessage = memo(({ message }: { message: MessageChat }) => {
@@ -112,6 +157,7 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
 
     const messagesEndRef = useRef<HTMLDivElement | null>(null)
     const formRef = useRef<HTMLDivElement | null>(null)
+    const pollCleanupRef = useRef<(() => void) | null>(null)
     const [formHeight, setFormHeight] = useState(0)
 
     useEffect(() => {
@@ -198,51 +244,77 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
     }, [messagesChat.length, updateIsAtBottom])
 
     useEffect(() => {
-        if (newChat && !hasGeneratedAiMessage.current) {
-            hasGeneratedAiMessage.current = true
-            setIsGenerating(true)
+        return () => {
+            pollCleanupRef.current?.();
+            pollCleanupRef.current = null;
+        };
+    }, []);
 
-            generateAiResponse(chat.agent_uuid, chat.uuid).then((aiResponse) => {
-                return storeMessage(aiResponse.raw, 'model', chat.uuid, chat.agent_uuid).then((storedAiMessage) => {
-                    addMessage(storedAiMessage)
-                })
-            }).catch((error) => {
-                console.error('Failed to generate AI response', error)
-            }).finally(() => {
-                setIsGenerating(false)
+    useEffect(() => {
+        if (!newChat || hasGeneratedAiMessage.current) return;
+
+        hasGeneratedAiMessage.current = true;
+        setIsGenerating(true);
+
+        generateAiResponse(chat.agent_uuid, chat.uuid)
+            .then((response) => {
+                if (response.status === 202) {
+                    pollCleanupRef.current = pollUntilModelMessage(
+                        chat.uuid,
+                        messagesChat.length,
+                        setMessagesChat,
+                        setIsGenerating,
+                    );
+                } else {
+                    setIsGenerating(false);
+                }
             })
+            .catch(() => {
+                setIsGenerating(false);
+            });
 
-        }
-    }, [newChat, chat.agent_uuid, chat.uuid])
+        return () => {
+            pollCleanupRef.current?.();
+            pollCleanupRef.current = null;
+        };
+    }, [newChat, chat.agent_uuid, chat.uuid, messagesChat.length])
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
+        event.preventDefault();
 
-        if (inputLength === 0 || isGenerating) return
+        if (inputLength === 0 || isGenerating) return;
 
-        const currentInput = input
-
-        setInput('')
-        setIsGenerating(true)
+        const currentInput = input;
+        setInput('');
+        setIsGenerating(true);
 
         try {
-            // store user message
-            const storedUserMessage = await storeMessage(currentInput, 'user', chat.uuid, chat.agent_uuid)
-            addMessage(storedUserMessage)
+            const storedUserMessage = await storeMessage(
+                currentInput,
+                'user',
+                chat.uuid,
+                chat.agent_uuid,
+            );
+            addMessage(storedUserMessage);
+            scrollToBottom(true);
 
-            scrollToBottom(true)
-
-            // generate ai response
-            const aiResponse = await generateAiResponse(chat.agent_uuid, chat.uuid)
-            // store ai response
-            const storedAiResponse = await storeMessage(aiResponse.raw, 'model', chat.uuid, chat.agent_uuid)
-            addMessage(storedAiResponse)
+            const response = await generateAiResponse(chat.agent_uuid, chat.uuid);
+            if (response.status === 202) {
+                pollCleanupRef.current?.();
+                pollCleanupRef.current = pollUntilModelMessage(
+                    chat.uuid,
+                    messagesChat.length + 1,
+                    setMessagesChat,
+                    setIsGenerating,
+                );
+            } else {
+                setIsGenerating(false);
+            }
         } catch (error) {
-            console.error('Failed to send message', error)
-        } finally {
-            setIsGenerating(false)
+            console.error('Failed to send message', error);
+            setIsGenerating(false);
         }
-    }
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

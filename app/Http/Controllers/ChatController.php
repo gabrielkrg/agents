@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Chat;
 use App\Models\Agent;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
+use App\Models\Chat;
 use App\Models\Message;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ChatController extends Controller
 {
@@ -16,7 +16,7 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->agents->contains($agent->uuid)) {
+        if (! $user->agents->contains($agent->uuid)) {
             return abort(403);
         }
 
@@ -54,7 +54,7 @@ class ChatController extends Controller
 
         $user = auth()->user();
 
-        if (!$user->agents->contains($request->agent_uuid)) {
+        if (! $user->agents->contains($request->agent_uuid)) {
             return abort(403);
         }
 
@@ -79,14 +79,12 @@ class ChatController extends Controller
             'agent_uuid' => 'required|exists:agents,uuid',
         ]);
 
-
         $user = auth()->user();
 
-        if (!$user->agents->contains($request->agent_uuid)) {
+        if (! $user->agents->contains($request->agent_uuid)) {
             return abort(403);
         }
 
-        // 
         $cleanContent = trim(strip_tags($request->content));
         $description = mb_substr($cleanContent, 0, 20);
 
@@ -111,6 +109,7 @@ class ChatController extends Controller
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return redirect()->back()->with('error', $th->getMessage());
         }
 
@@ -120,7 +119,7 @@ class ChatController extends Controller
         Cache::forget("agent_{$request->agent_uuid}_chats");
         Cache::forget("user_{$user->id}_agents_with_chats");
 
-        return redirect()->to(route('chats.show', [$request->agent_uuid, $chat->uuid]) . '?newChat=true');
+        return redirect()->to(route('chats.show', [$request->agent_uuid, $chat->uuid]).'?newChat=true');
     }
 
     public function update(Request $request, Chat $chat)
@@ -131,7 +130,7 @@ class ChatController extends Controller
 
         $user = auth()->user();
 
-        if (!$user->chats->contains($chat->uuid)) {
+        if (! $user->chats->contains($chat->uuid)) {
             return abort(403);
         }
 
@@ -147,7 +146,7 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->agents->contains($chat->agent_uuid)) {
+        if (! $user->agents->contains($chat->agent_uuid)) {
             return abort(403);
         }
 

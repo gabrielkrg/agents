@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\Api\GeminiController;
 use App\Http\Controllers\Api\AgentController;
+use App\Http\Controllers\Api\GeminiController;
+use App\Http\Controllers\Api\MessageController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::get('/chats/{chat_uuid}/messages', [MessageController::class, 'index']);
     Route::post('/messages', [MessageController::class, 'store']);
     Route::post('/gemini/generate', [GeminiController::class, 'generate']);
     Route::post('/gemini/generate/single', [GeminiController::class, 'generateSingle']);

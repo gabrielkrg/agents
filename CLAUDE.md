@@ -13,10 +13,8 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/fortify (FORTIFY) - v1
 - laravel/framework (LARAVEL) - v12
 - laravel/prompts (PROMPTS) - v0
-- laravel/pulse (PULSE) - v1
 - laravel/sanctum (SANCTUM) - v4
 - laravel/wayfinder (WAYFINDER) - v0
-- livewire/livewire (LIVEWIRE) - v4
 - laravel/mcp (MCP) - v0
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
@@ -282,46 +280,6 @@ If your application uses the `<Form>` component from Inertia, you can use Wayfin
 
 </code-snippet>
 
-=== livewire/core rules ===
-
-## Livewire
-
-- Use the `search-docs` tool to find exact version-specific documentation for how to write Livewire and Livewire tests.
-- Use the `php artisan make:livewire [Posts\CreatePost]` Artisan command to create new components.
-- State should live on the server, with the UI reflecting it.
-- All Livewire requests hit the Laravel backend; they're like regular HTTP requests. Always validate form data and run authorization checks in Livewire actions.
-
-## Livewire Best Practices
-- Livewire components require a single root element.
-- Use `wire:loading` and `wire:dirty` for delightful loading states.
-- Add `wire:key` in loops:
-
-    ```blade
-    @foreach ($items as $item)
-        <div wire:key="item-{{ $item->id }}">
-            {{ $item->name }}
-        </div>
-    @endforeach
-    ```
-
-- Prefer lifecycle hooks like `mount()`, `updatedFoo()` for initialization and reactive side effects:
-
-    public function mount(User $user) { $this->user = $user; }
-    public function updatedSearch() { $this->resetPage(); }
-</code-snippet>
-
-## Testing Livewire
-
-    Livewire::test(Counter::class)
-        ->assertSet('count', 0)
-        ->call('increment')
-        ->assertSet('count', 1)
-        ->assertSee(1)
-        ->assertStatus(200);
-</code-snippet>
-
-</code-snippet>
-
 === pint/core rules ===
 
 ## Laravel Pint Code Formatter
@@ -336,6 +294,7 @@ If your application uses the `<Form>` component from Inertia, you can use Wayfin
 - If you need to verify a feature is working, write or update a Unit / Feature test.
 
 ### Pest Tests
+- All tests must be written using Pest. Use `php artisan make:test --pest {name}`.
 - You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files - these are core to the application.
 - Tests should test all of the happy paths, failure paths, and weird paths.
 - Tests live in the `tests/Feature` and `tests/Unit` directories.
@@ -348,6 +307,9 @@ it('is true', function () {
 
 ### Running Tests
 - Run the minimal number of tests using an appropriate filter before finalizing code edits.
+- To run all tests: `php artisan test --compact`.
+- To run all tests in a file: `php artisan test --compact tests/Feature/ExampleTest.php`.
+- To filter on a particular test name: `php artisan test --compact --filter=testName` (recommended after making a change to a related file).
 - When the tests relating to your changes are passing, ask the user if they would like to run the entire test suite to ensure everything is still passing.
 
 ### Pest Assertions
@@ -366,6 +328,7 @@ it('returns all', function () {
 - You can also create partial mocks using the same import or self method.
 
 ### Datasets
+- Use datasets in Pest to simplify tests that have a lot of duplicated data. This is often the case when testing validation rules, so consider this solution when writing tests for validation rules.
 
 <code-snippet name="Pest Dataset Example" lang="php">
 it('has emails', function (string $email) {

@@ -33,25 +33,6 @@ export default function Dashboard({ agents }: { agents: Agent[] }) {
                     </p>
                 </div>
                 <SummaryCards agents={agents} />
-                <div className="grid auto-rows-min gap-4 grid-cols-5 relative min-h-[100vh] flex-1 overflow-hidden md:min-h-min">
-                    <Card className="md:col-span-3 col-span-5 flex-1 gap-2">
-                        <CardHeader className="px-4">
-                            <CardTitle>Last Agents</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4">
-                            <TableAgents agents={agents} />
-                        </CardContent>
-                    </Card>
-                    <Card className="md:col-span-2 col-span-5">
-                        <CardHeader className="text-center">
-                            <CardTitle>Chats por agente</CardTitle>
-                            <CardDescription>Distribuição total de chats</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex h-full flex-col gap-4">
-                            <AgentsPieChart agents={agents} />
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
         </AppLayout >
     );

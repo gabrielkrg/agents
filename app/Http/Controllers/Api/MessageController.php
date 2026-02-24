@@ -3,14 +3,29 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Models\Message;
-use Illuminate\Support\Facades\Cache;
 use App\Models\Chat;
+use App\Models\Message;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class MessageController extends Controller
 {
+    public function index(string $chat_uuid): JsonResponse
+    {
+        $user = auth()->user();
+
+        if (! $user->chats->pluck('uuid')->contains($chat_uuid)) {
+            return response()->json(['error' => 'You are not authorized to view messages for this chat'], 403);
+        }
+
+        $messages = Message::where('chat_uuid', $chat_uuid)
+            ->orderBy('created_at')
+            ->get(['uuid', 'role', 'content', 'created_at']);
+
+        return response()->json($messages);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -22,11 +37,11 @@ class MessageController extends Controller
 
         $user = auth()->user();
 
-        if (!$user->chats->contains($request->chat_uuid)) {
+        if (! $user->chats->pluck('uuid')->contains($request->chat_uuid)) {
             return response()->json(['error' => 'You are not authorized to create a message for this chat'], 403);
         }
 
-        if (!$user->agents->contains($request->agent_uuid)) {
+        if (! $user->agents->pluck('uuid')->contains($request->agent_uuid)) {
             return response()->json(['error' => 'You are not authorized to create a message for this agent'], 403);
         }
 
