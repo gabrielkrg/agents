@@ -25,7 +25,7 @@ if (key) {
         wssPort: Number(port),
         forceTLS,
         enabledTransports: ['ws', 'wss'],
-        authEndpoint: '/broadcasting/auth',
+        authEndpoint: `${window.location.origin}/broadcasting/auth`,
         auth: {
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
@@ -33,18 +33,19 @@ if (key) {
         },
         authorizer: (channel: { name: string }) => ({
             authorize: (socketId: string, callback: (error: boolean, data?: any) => void) => {
-                fetch('/broadcasting/auth', {
+                fetch(`${window.location.origin}/broadcasting/auth`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                        'X-Requested-With': 'XMLHttpRequest',
                     },
                     body: JSON.stringify({
                         socket_id: socketId,
                         channel_name: channel.name,
                     }),
-                    credentials: 'same-origin', // ensures laravel_session cookie is sent
+                    credentials: 'include', // ensures laravel_session cookie is sent (required for cross-origin)
                 })
                     .then((res) => {
                         if (!res.ok) {
