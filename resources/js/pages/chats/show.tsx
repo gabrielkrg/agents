@@ -9,7 +9,7 @@ import { show } from '@/routes/chats';
 import { index, show as showAgent } from '@/routes/agents';
 import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import axios from 'axios';
-import { getEcho } from '@/echo';
+import { useEcho } from '@laravel/echo-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Components } from "react-markdown";
@@ -208,26 +208,19 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         };
     }, []);
 
-    useEffect(() => {
-        const Echo = getEcho();
-        if (!Echo) return;
-
-        const channelName = `private-chat.${chat.uuid}`;
-        const channel = Echo.private(channelName);
-
-        channel.listen('.GeminiResponseGenerated', (e: { message: MessageChat }) => {
+    useEcho<{ message: MessageChat }>(
+        `chat.${chat.uuid}`,
+        '.GeminiResponseGenerated',
+        (e) => {
             if (broadcastTimeoutRef.current != null) {
                 window.clearTimeout(broadcastTimeoutRef.current);
                 broadcastTimeoutRef.current = null;
             }
             addMessage(e.message);
             setIsGenerating(false);
-        });
-
-        return () => {
-            Echo.leave(channelName);
-        };
-    }, [chat.uuid]);
+        },
+        [chat.uuid],
+    );
 
     useEffect(() => {
         if (!newChat || hasGeneratedAiMessage.current) return;
