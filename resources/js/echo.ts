@@ -21,39 +21,30 @@ if (key) {
         broadcaster: 'reverb',
         key,
         wsHost: host,
-        wsPort: port,
-        wssPort: port,
+        wsPort: Number(port),
+        wssPort: Number(port),
         forceTLS,
         enabledTransports: ['ws', 'wss'],
         authEndpoint: '/broadcasting/auth',
         auth: {
-            headers: {},
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+            },
         },
         authorizer: (channel: { name: string }) => ({
-            authorize: (socketId: string, callback: (a: boolean, b?: unknown) => void) => {
-                const csrfToken =
-                    document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ??
-                    (typeof document !== 'undefined' && document.cookie
-                        ? decodeURIComponent(
-                              document.cookie
-                                  .split('; ')
-                                  .find((row) => row.startsWith('XSRF-TOKEN='))
-                                  ?.split('=')[1] ?? '',
-                          )
-                        : '');
+            authorize: (socketId: string, callback: (error: boolean, data?: any) => void) => {
                 fetch('/broadcasting/auth', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Accept: 'application/json',
-                        'X-XSRF-TOKEN': csrfToken,
-                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
                     },
                     body: JSON.stringify({
                         socket_id: socketId,
                         channel_name: channel.name,
                     }),
-                    credentials: 'include',
+                    credentials: 'same-origin', // ensures laravel_session cookie is sent
                 })
                     .then((res) => {
                         if (!res.ok) {
