@@ -233,11 +233,11 @@ export default function ChatShow({ chat, messages, newChat }: { chat: Chat; mess
         if (!newChat || hasGeneratedAiMessage.current) return;
 
         hasGeneratedAiMessage.current = true;
-        setIsGenerating(true);
 
         generateAiResponse(chat.agent_uuid, chat.uuid)
             .then((response) => {
                 if (response.status === 202) {
+                    setIsGenerating(true);
                     broadcastTimeoutRef.current = window.setTimeout(() => {
                         broadcastTimeoutRef.current = null;
                         setIsGenerating(false);
